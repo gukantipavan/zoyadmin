@@ -1,0 +1,403 @@
+<ngx-spinner bdColor="rgba(0,0,0,0.8)" size="medium" color="#fff" type="ball-circus" [fullScreen]="true">
+    <p style="color: white;">Loading ...</p>
+  </ngx-spinner>
+  <div id="page-top">
+      <!-- Page Wrapper -->
+      <div id="wrapper">    
+        <!-- Sidebar -->
+          <app-sidebar></app-sidebar>
+        <!-- End of Sidebar -->
+  
+          <!-- Content Wrapper -->
+          <div id="content-wrapper" class="d-flex flex-column" [ngClass]=" isExpandSideBar ?'side-bar-expand':'side-bar-collaspe'">
+              <!-- Main Content -->
+              <div id="content">
+                  <div style="display: block;margin-bottom: 5.375rem;">
+                  <!-- Topbar -->
+                  <app-header></app-header>
+                  <!-- End of Topbar -->
+                  </div>
+  
+                  <!-- Begin Page Content -->
+                  <div class="container-fluid">
+                      <!-- Page Heading -->
+                      <div class="d-sm-flex align-items-center justify-content-between mb-3">
+                          <h3 class="h3 mb-0"><span class="text-header-800 text-header-border">Dashboard</span></h3> 
+                          <div>
+                          <!-- <a href="javascript:void(0)"  class="d-sm-inline-block btn btn-sm btn-primary-custom shadow-sm mr-3"> View Tenants Transactions</a> -->
+                          <a href="javascript:void(0)" routerLink="/zoy-code" class="d-sm-inline-block btn btn-sm btn-primary-custom shadow-sm" *ngIf="rolesArray.includes('ZOYCODES_READ')" > Generate Zoy Code</a>
+                           </div>
+                      </div>
+  
+                      <!-- Content Row -->
+                  <div class="row">
+                      <!-- Earnings (Monthly) Card Example -->
+                      <div class="col-xl-3 col-md-6 mb-3">
+                          <div class="holographic-card card-1 card border-left-primary shadow h-100 ">
+                                  <div class="card-custom-hedder row align-items-center shadow">
+                                      <div class="col mr-2">
+                                          <div class="font-weight-bold text-dark" style="font-size: 15px;">Total Tenants 
+                                        </div>
+                                          <div class="h5 mb-0 font-weight-bold text-gray-800">{{tenantDetails.activeTenantsCount + tenantDetails.upcomingTenantsCount +tenantDetails.inactiveTenantsCount + tenantDetails.suspendedTenantsCount}}</div>
+                                      </div>
+                                      <div class="col-auto">
+                                          <div style="border-radius: 15px;background-color: rgb(232, 242, 247);"><i class="fas fa-user-friends text-primary" style="margin: 10px;font-size: 22px;"></i></div>
+                                      </div>
+                                  </div>
+                                  <div class="ml-3 mt-2 mb-2 mr-3" style="font-size: 12px;">
+                                    <div class="row item">
+                                        <div class="col-sm-7 status-item"> <span class="active"></span> Active</div>
+                                        <div class="col-sm-5" style="text-align: right;">{{tenantDetails.activeTenantsCount}}</div>
+                                    </div>
+                                    <div class="row item">
+                                        <div class="col-sm-7 status-item"> <span class="upcoming"></span> Upcoming</div>
+                                        <div class="col-sm-5" style="text-align: right;">{{tenantDetails.upcomingTenantsCount}}</div>
+                                    </div>
+                                    <div class="row item">
+                                        <div class="col-sm-7 status-item">  <span class="inactive"></span>Inactive</div>
+                                        <div class="col-sm-5" style="text-align: right;">{{tenantDetails.inactiveTenantsCount}}</div>
+                                    </div>
+                                    <div class="row item">
+                                        <div class="col-sm-7 status-item"><span class="suspended"></span>Suspended</div>
+                                        <div class="col-sm-5" style="text-align: right;">{{tenantDetails.suspendedTenantsCount}}</div>
+                                    </div>
+                                  <div class="mt-2"><span class="mr-1"><img src="assets/images/trending_up.svg"/></span> <span class="text-info" >8.3%</span> <span class="text-gray-800 ml-1" style="font-size: 13px;">Up from past week</span></div>
+                                </div>
+                          </div>
+                      </div>
+  
+                      <!-- Earnings (Monthly) Card Example -->
+                      <div class="col-xl-3 col-md-6 mb-3">
+                          <div class="holographic-card card-2 card border-left-success shadow h-100 py-1">
+                              <div class="card-body" style="padding: 15px;">
+                                  <div class="row no-gutters align-items-center">
+                                      <div class="col mr-2">
+                                          <div class="text-xs font-weight-bold text-dark mb-1" style="font-size: 15px;">
+                                              Property Owners</div>
+                                          <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardCardModel.activeOwnersCount}}</div>
+                                      </div>
+                                      <div class="col-auto">
+                                          <div style="border-radius: 15px;background-color: rgb(247, 204, 184);"><i class="fas fa-house-user text-danger" style="margin: 10px;font-size: 22px;"></i></div>
+                                      </div>
+                                  </div>
+                                  <div class="mt-2"><span class="mr-1"><img src="assets/images/trending_up.svg"/></span> <span class="text-info" style="font-size: 13px;">4.3%</span> <span class="text-gray-800 ml-1" style="font-size: 13px;">Up from past week</span></div>
+                              </div>
+                          </div>
+                      </div>
+  
+                      <!-- Earnings (Monthly) Card Example -->
+                      <div class="col-xl-3 col-md-6 mb-3">
+                          <div class="holographic-card card-3 card border-left-info shadow h-100 py-1">
+                              <div class="card-body" style="padding: 15px;">
+                                  <div class="row no-gutters align-items-center">
+                                      <div class="col mr-2">
+                                          <div class="text-xs font-weight-bold text-dark mb-1" style="font-size: 15px;">Listed Properties
+                                          </div>
+                                          <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardCardModel.activePropertiesCount}}</div>
+                                      </div>
+                                      <div class="col-auto">
+                                          <div style="border-radius: 15px;background-color: rgb(245, 236, 202);"><i class="far fa-building text-warning" style="margin: 10px;font-size: 22px;"></i></div>
+                                      </div>
+                                  </div>
+                                  <div class="mt-2"><span class="mr-1"><img src="assets/images/trending_down.svg"/></span> <span class="text-danger" style="font-size: 13px;">0.3%</span> <span class="text-gray-800 ml-1" style="font-size: 13px;">Up from past week</span></div>
+                              </div>
+                          </div>
+                      </div>
+  
+                      <!-- Pending Requests Card Example -->
+                      <div class="col-xl-3 col-md-6 mb-3">
+                          <div class="holographic-card card-4 card border-left-warning shadow h-100 py-1">
+                              <div class="card-body" style="padding: 15px;">
+                                  <div class="row no-gutters align-items-center">
+                                      <div class="col mr-2">
+                                          <div class="font-weight-bold text-dark mb-1" style="font-size: 15px;">
+                                              Total ZOY Share</div>
+                                          <div class="h5 mb-0 font-weight-bold text-gray-800">{{dashboardCardModel.zoyShare}}</div>
+                                      </div>
+                                      <div class="col-auto">
+                                          <div style="border-radius: 15px;background-color: rgb(220, 234, 248);"><i class="fas fa-chart-line text-info" style="margin: 10px;font-size: 22px;"></i></div>
+                                      </div>
+                                  </div>
+                                  <div class="mt-2"><span class="mr-1"><img src="assets/images/trending_up.svg"/></span> <span class="text-info" style="font-size: 13px;">2.3%</span> <span class="text-gray-800 ml-1" style="font-size: 13px;">Up from past week</span></div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                      <!-- Super Admin section -->
+                      <div class="row" *ngIf="userInfo?.designation=='Super Admin'">
+                          <div class="col-sm-9">
+                              <div class="row">
+                                  <div class="col-sm-7">
+                                      <div class="card mb-2">
+                                          <div class="card-body">
+                                              <div>
+                                                  <div class="d-flex justify-content-between align-items-center mb-1">
+                                                      <!-- Title -->
+                                                      <div class="text-xs font-weight-bold mb-1" style="font-size: 20px;"> Total Revenue</div>
+                                                      <!-- Dropdown -->
+                                                      <div class="ml-auto" style="width: 130px;">
+                                                              <select class="form-select form-select-sm">
+                                                                  <option selected>Last week</option>
+                                                                  <option >Last 15 days</option>
+                                                                  <option value="1">Last 30 days</option>
+                                                                  <option value="2">Last 6 months</option>
+                                                                  <option value="3">Last 1 year</option>
+                                                              </select>
+                                                      </div>
+                                                  </div>
+                                                  <div class="d-flex justify-content-between align-items-center mb-3">
+                                                      <div> <span  style="font-size: 16px;margin-right: 5px;color: #000;">Rs.200K</span><span style="font-size: 13px;">from last week</span></div>
+                                                      <div class="ml-auto" style="font-size: 12px;">
+                                                          <i class="fas fa-circle mr-1" style="color:#448EFC"></i><span style="color:rgb(138, 3, 115);">ZOY Share</span> <!--i class="fas fa-circle ml-2 mr-1" style="color:rgb(0, 183, 255);"></i><span style="color:rgb(0, 183, 255);">User Payments</span -->
+                                                      </div>
+                                                  </div>
+                                                  <div><barchart-ngx></barchart-ngx></div>
+                                                </div>
+                                          </div>
+                                      </div>        
+                                  </div>
+                                  <div class="col-sm-5">
+                                      <div class="card mb-2">
+                                          <div class="card-body">
+                                                <div style="height: 478px;">
+                                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                                      <!-- Title -->
+                                                      <div class="text-xs font-weight-bold mb-1" style="font-size: 20px;"> Total Bookings</div>
+                                                      <!-- Dropdown -->
+                                                      <div class="ml-auto" style="width: 130px;">
+                                                              <select class="form-select form-select-sm" [(ngModel)]="this.bookingDetailsFilter.selectedDays" (ngModelChange)="getTotalBookings()">
+                                                                  <option value="15 days">Last 15 days</option>
+                                                                  <option value="30 days">Last 30 days</option>
+                                                                  <option value="6 months">Last 6 months</option>
+                                                                  <option value="1 year">Last 1 year</option>
+                                                              </select>
+                                                      </div>
+                                                  </div>
+                                                  <div>   
+                                                      <doughnut-ngx></doughnut-ngx>
+                                                      <div class="d-flex justify-content-around mt-2">
+                                                          <div><div style="font-size: 16px;">{{totalBookingDetails.checked_in}}</div><div style="font-size: 12px;"><i class="fas fa-circle mr-1" style="color:#448EFC;"></i>Checked-in</div></div>
+                                                          <div><div style="font-size: 16px;">{{totalBookingDetails.booked}}</div><div style="font-size: 12px;"><i class="fas fa-circle mr-1" style="color:#FF8743;"></i>Booked</div></div>
+                                                          <div><div style="font-size: 16px;">{{totalBookingDetails.vacancy}}</div><div style="font-size: 12px;"><i class="fas fa-circle mr-1" style="color:#E1E4E8;"></i>Vacancy</div></div>
+                                                      </div>      
+                                                  </div>
+                                                </div>
+                                          </div>
+                                      </div> 
+                                  </div>
+                              </div>        
+                          </div>
+                          <div class="col-sm-3">
+                              <div class="card mb-2" style="height: fit-content;">
+                                  <div class="card-body">
+                                      <div class="no-gutters align-items-center" style="height: 478px;">
+                                          <!-- Row with Title and Dropdown -->
+                                              <div class="text-xs font-weight-bold mb-3" style="font-size: 20px;"> Total Issues</div>
+                                              <div class="mr-3 mb-3 pb-2">
+                                                  <select class="form-select form-select-sm">
+                                                      <option selected>Nov 1 - Nov 9, 2024</option>
+                                                      <option value="1">Last 30 days</option>
+                                                      <option value="2">Last 6 months</option>
+                                                      <option value="3">Last 1 year</option>
+                                                  </select>
+                                              </div>                                                  
+                                          <!-- Image -->
+                                          <div class="justify-content-between align-items-center">
+                                              <!-- First Progress Bar -->
+                                              <div class="mb-3">
+                                                  <div class="d-flex justify-content-between align-items-center">
+                                                      <div class="font-weight-bold text-info" style="font-size: 15px;"> Resolved</div>
+                                                  </div>
+                                                  <div class="progress progress-sm mr-2">
+                                                      <div class="progress-bar bg-info" role="progressbar"
+                                                          style="width: 50%" aria-valuenow="50"
+                                                          aria-valuemin="0" aria-valuemax="100"></div>
+                                                  </div>
+                                                  <div class="font-weight-bold text-gray-800 mt-2" style="font-size: 13px;">50% resolved (375/750)</div>
+                                              </div>
+  
+                                              <!-- Second Progress Bar -->
+                                              <div class="mb-3">
+                                                  <div  class="d-flex justify-content-between align-items-center">
+                                                      <div class="font-weight-bold text-warning" style="font-size: 15px;">
+                                                          Opened</div>
+                                                  </div>
+                                                  <div class="progress progress-sm mr-2">
+                                                      <div class="progress-bar bg-warning" role="progressbar"
+                                                          style="width: 30%" aria-valuenow="30"
+                                                          aria-valuemin="0" aria-valuemax="100"></div>
+                                                  </div>
+                                                  <div class="font-weight-bold text-gray-800 mt-2" style="font-size: 13px;">30% opened (112/375)</div>
+                                              </div>
+  
+                                              <!-- Third Progress Bar -->
+                                              <div>
+                                                  <div class="d-flex justify-content-between align-items-center">
+                                                      <div class="font-weight-bold text-danger" style="font-size: 15px;">
+                                                          Pending</div>
+                                                  </div>
+                                                  <div class="progress progress-sm mr-2">
+                                                      <div class="progress-bar bg-danger" role="progressbar"
+                                                          style="width: 70%" aria-valuenow="70"
+                                                          aria-valuemin="0" aria-valuemax="100"></div>
+                                                  </div>
+                                                  <div class="font-weight-bold text-gray-800 mt-2" style="font-size: 13px;">70% pending (263/375)</div>
+                                              </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                              </div> 
+                          </div>
+                      </div>
+                      <!-- end Super Admin section -->
+  
+                      <!-- Finance Admin section -->
+                      <div class="row mb-3"  *ngIf="userInfo?.designation=='Finance Admin'">
+                          <div class="col-sm-5">
+                              <div class="card mb-2">
+                                  <div class="card-body">
+                                        <div style="height: 358px;">
+                                          <div class="d-flex justify-content-between align-items-center mb-2">
+                                              <!-- Title -->
+                                              <div class="text-xs font-weight-bold mb-1" style="font-size: 20px;"> Itemized Revenue</div>
+                                              <!-- Dropdown -->
+                                              <div class="ml-auto" style="width: 130px;">
+                                                      <select class="form-select form-select-sm">
+                                                          <option selected>Last 15 days</option>
+                                                          <option value="1">Last 30 days</option>
+                                                          <option value="2">Last 6 months</option>
+                                                          <option value="3">Last 1 year</option>
+                                                      </select>
+                                              </div>
+                                          </div>
+                                          <div>   
+                                              <div class="m-5">
+                                                 <div class="d-flex" style="width:300px;margin-left:30px;"> 
+                                                  <div style="width: 100px;height: 100px;border-radius: 50%;background-color: #A02BE7;text-align: center;color:#e2c1f7;padding-top:25px;">
+                                                     <div style="font-size: 18px;">15%</div>
+                                                     <div style="font-size: 15px;">Bills</div>
+                                                  </div>
+                                                  <div style="width: 200px;height: 200px;border-radius: 50%;background-color: #F9A644;text-align: center;color:#f9f8fa;padding-top:75px;margin-top:25px;margin-left:-10px;">
+                                                    <div style="font-size: 18px;">55%</div>
+                                                    <div style="font-size: 15px;">Rental Payments</div>
+                                                  </div>
+                                                  </div>
+                                                  <div style="width: 150px;height: 150px;border-radius: 50%;background-color: #44C5E1;text-align: center;color:#f7f6f8;padding-top:45px;margin-top:-115px;margin-left: -30px;">
+                                                    <div style="font-size: 18px;">30%</div>
+                                                    <div style="font-size: 15px;">Security Deposits</div>
+                                                 </div>
+                                              </div>     
+                                          </div>
+                                        </div>
+                                  </div>
+                              </div> 
+                          </div>
+                          <div class="col-sm-7">
+                              <div class="card mb-2">
+                                  <div class="card-body">
+                                        <div style="height: 358px;">
+                                          <div class="d-flex justify-content-between align-items-center mb-2">
+                                              <!-- Title -->
+                                              <div class="text-xs font-weight-bold mb-1" style="font-size: 20px;"> Average Tenant Stay</div>
+                                              <!-- Dropdown -->
+                                              <div class="ml-auto" style="width: 210px;">
+                                                      <select class="form-select form-select-sm">
+                                                          <option selected>15/12/2024 - 21/12/2024</option>
+                                                          <option value="1">Last 30 days</option>
+                                                          <option value="2">Last 6 months</option>
+                                                          <option value="3">Last 1 year</option>
+                                                      </select>
+                                              </div>
+                                          </div>
+                                          <div>   
+                                            <areachart-home-ngx></areachart-home-ngx>       
+                                          </div>
+                                        </div>
+                                  </div>
+                              </div> 
+                          </div>
+                      </div>
+                      <div class="row" *ngIf="userInfo?.designation=='Finance Admin'">
+                          <div class="col-sm-5">
+                              <div class="card mb-2">
+                                  <div class="card-body">
+                                        <div style="height: 278px;">
+                                          <div class="d-flex justify-content-between align-items-center mb-2">
+                                              <!-- Title -->
+                                              <div class="text-xs font-weight-bold mb-1" style="font-size: 20px;"> Top Revenue Generated PGs</div>
+                                              <!-- Dropdown -->
+                                              <div class="ml-auto" style="width: 130px;">
+                                                      <select class="form-select form-select-sm">
+                                                          <option selected>Last 15 days</option>
+                                                          <option value="1">Last 30 days</option>
+                                                          <option value="2">Last 6 months</option>
+                                                          <option value="3">Last 1 year</option>
+                                                      </select>
+                                              </div>
+                                          </div>
+                                          <div>   
+                                              <table mat-table [dataSource]="dataSourceTopRevenuePG">
+                                                          <ng-container matColumnDef="sl_no">
+                                                              <th mat-header-cell *matHeaderCellDef style="width: 50px;background-color: #fff;">Sl.No</th>
+                                                              <td mat-cell *matCellDef="let element" style="width: 50px;">
+                                                                {{ element.sl_no }}
+                                                              </td>
+                                                            </ng-container>
+                                                            
+                                                            <ng-container matColumnDef="pg_name">
+                                                              <th mat-header-cell *matHeaderCellDef style="background-color: #fff;">Name</th>
+                                                              <td mat-cell *matCellDef="let element">
+                                                                {{ element.pg_name }}
+                                                              </td>
+                                                            </ng-container>
+                                                            <ng-container matColumnDef="revenue">
+                                                              <th mat-header-cell *matHeaderCellDef style="width: 130px;background-color: #fff;">Revenue</th>
+                                                              <td mat-cell *matCellDef="let element" style="width: 130px;color:rgb(10, 170, 109);">
+                                                                {{ element.revenue }}
+                                                              </td>
+                                                            </ng-container>                                        
+                                                          <!-- Header and Row Definitions -->
+                                                          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky:true"></tr>
+                                                          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>                                             
+                                                      </table>      
+                                          </div>
+                                        </div>
+                                  </div>
+                              </div> 
+                          </div>
+                          <div class="col-sm-7">
+                              <div class="card mb-2">
+                                  <div class="card-body">
+                                        <div style="height: 278px;">
+                                          <div class="d-flex justify-content-between align-items-center mb-1">
+                                              <!-- Title -->
+                                              <div class="text-xs font-weight-bold mb-1" style="font-size: 20px;"> Revenue</div>
+                                              <!-- Dropdown -->
+                                              <div class="ml-auto" style="width: 210px;">
+                                                      <select class="form-select form-select-sm">
+                                                          <option selected>15/12/2024 - 21/12/2024</option>
+                                                          <option value="1">Last 30 days</option>
+                                                          <option value="2">Last 6 months</option>
+                                                          <option value="3">Last 1 year</option>
+                                                      </select>
+                                              </div>
+                                          </div>
+                                          <div><strong>INR 7,78,980.00</strong></div>
+                                          <div>   
+                                              <linechart-home-ngx></linechart-home-ngx>
+                                          </div>
+                                        </div>
+                                  </div>
+                              </div> 
+                          </div>
+                      </div>
+                      <!-- End Finance Admin section -->
+                  </div>
+                  <!-- /.container-fluid -->
+              </div>
+              <!-- End of Main Content -->
+          </div>
+          <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+  </div>

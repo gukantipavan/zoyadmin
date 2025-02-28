@@ -1,0 +1,74 @@
+<div>
+    <div class="bg-gradient-dark">
+        <div class="container">
+            <!-- Outer Row -->
+            <div class="row justify-content-center" style="margin: 0px;">
+                <div class="col-xl-11 col-lg-12 col-md-10">
+                    <div class="card o-hidden border-0 shadow-lg my-3">
+                        <div class="card-body p-0">
+                            <!-- Nested Row within Card Body -->
+                            <div class="row"  style="height:calc(100vh - 35px);">                      
+                               <div class="col-lg-5 d-none d-lg-block">
+                                        <img src="assets/images/document-upload.png" class="img-fluid" style="height: 100%;">
+                                 </div>
+                                 <div class="col-lg-7">
+                                    <div class="p-3" style="margin-right: 15px;">
+                                        <div style="text-align: center;">
+                                            <img src="assets/images/ZOY-logo.svg" style="height: 100px;width: auto;">
+                                        </div>
+                                          <div *ngIf="!uploaded">
+                                          <div class="rightsidetext mt-2 ">
+                                            <strong class="h5">Welcome to ZOY!</strong>
+                                            <p><strong class="h6">Hi {{ token }},</strong></p>
+                                            <p style="text-align: justify;color:#5b5b5b" class="small">To ensure the security and realibility of our platform. we require all owners to complete a quick verification process to maintain the safety of our community and to provide you with a seamless and trustworthy experience. </p>
+                                            <P style="text-align: justify;color:#5b5b5b" class="small pt-1">Rest assured, your information is securely stored and used solely for verification purposes as outlined in our Privacy Policy. </P>
+                                          </div>
+                                          <div class="text-left pt-1">
+                                            <label style="font-size: 15px;"><strong>Upload Property Document/Agreement</strong></label>
+                                            <div class="upload-container"
+                                                #uploadzone
+                                                dropzone
+                                                (click)="onClick()"
+                                                (drop)="onDrop($event.dataTransfer.files)"
+                                                (dragover)="$event.preventDefault()">
+                                            <p class="icon"><i class="bi bi-cloud-arrow-up-fill text-blue-500"></i></p>
+                                            <p class="title" style="font-size: 14px;"><a class="text-blue-500">Click to upload</a> or drag and drop</p>
+                                            <p class="desc" >Supported formats : PDF only  (Max file size: 5MB)</p>
+                                            </div>
+                                            <input 
+                                            type="file"
+                                            id="fileUpload"
+                                            name="fileUpload"
+                                            multiple="multiple"
+                                            accept="{{accept}}"
+                                            style="display:none;"/>
+                                        </div>
+                                            <div class="text-left pt-1" style="max-height: 140px;" *ngIf="files?.length!=0">
+                                             <div style="font-size: 15px;"><strong>Uploaded</strong></div>
+                                            <div style="max-height: 110px;overflow: auto;">
+                                             <div class="desc-inner">
+                                              <div *ngFor="let file of files" class="mb-1 d-flex" style="font-size: 13px;padding: 2px 10px;border:1px solid gray;border-radius: 3px;">
+                                                 <div style="color:5b5b5b;"> {{file.data.name}}</div><div class="ml-auto"><i class="far fa-times-circle text-danger" (click)="removeFileFromArray(file)"></i></div>
+                                              </div>                                           
+                                             </div>
+                                             </div>
+                                            </div>
+                                            <button type="submit" (click)="submit()"  class="btn btn-primary-custom btn-block mt-2">
+                                               Submit
+                                            </button>
+
+                                            </div>
+                                            <div class="mt-4 p-5" *ngIf="uploaded" style="text-align: center;">
+                                                <strong class="h4">Thanks for Uploading the Documents!<a class="text-blue-500 ml-2"><i class="bi bi-check-circle-fill"></i></a></strong>
+                                                <P class="small mt-2">We shall verify your documents and update you the status soon.If you have any questions please feel free to reach out to us at[Support Email/Contact Infomation] </P>
+                                              </div>
+                                       </div>
+                                   </div>
+                            </div>
+                        </div>
+                    </div>
+               </div>
+           </div>
+       </div>
+     </div>
+</div>    

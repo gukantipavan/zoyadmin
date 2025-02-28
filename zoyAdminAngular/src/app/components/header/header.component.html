@@ -1,0 +1,170 @@
+<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 fixed-top-expand">
+  <h1 class="h3 mb-0 text-gray-800" style="width: 200px;">Admin Portal</h1>
+  <!-- <div>
+    <p>Last Action Time (in milliseconds): {{ lastActionTime }}</p>
+    <p>Time since last action (in seconds): {{ getTimeSinceLastAction() / 1000 }}</p>
+  </div> -->
+
+  <!-- Topbar Search -->
+  <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search" (submit)="searchMenus($event)">
+  
+    <div class="input-group ">
+      <input class="form-control bg-light border-1 small" type="text"  style="border-radius: 20px;padding-left: 29px;"  placeholder="Search" [formControl]="searchControl"
+          aria-label="Search" aria-describedby="basic-addon2" matInput [matAutocomplete]="auto"/>
+      <div class="input-group-append">
+   
+      </div>
+    </div>
+    
+    <mat-autocomplete #auto="matAutocomplete">
+      <mat-option *ngFor="let menu of filteredOptions | async" [value]="menu.name" (click)="navigateTo(menu)">
+        {{ menu.name }}
+      </mat-option>
+    </mat-autocomplete>
+  </form>
+  <!-- Topbar Navbar -->
+  <ul class="navbar-nav ml-auto">
+      <!-- Nav Item - Alerts -->
+      <li class="nav-item dropdown no-arrow mx-1">
+          <a class="nav-link dropdown-toggle" href="javascript:void(0)" id="alertsDropdown" role="button"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-bell fa-fw"></i>
+              <!-- Counter - Alerts -->
+              <span class="badge badge-danger badge-counter">3+</span>
+              <!-- <div class="badge badge-danger badge-counter">{{ getTimeSinceLastAction() / 1000 }}+</div> -->
+          </a>
+          
+          <!-- Dropdown - Alerts -->
+          <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+              aria-labelledby="alertsDropdown">
+              <h6 class="dropdown-header">
+                  Alerts Center
+              </h6>
+                <a *ngFor="let notification of notifications; let i = index">
+                    <div *ngIf="i < 3" class="dropdown-item d-flex align-items-center notification-item" href="javascript:void(0)" (click)="selectNotification(notification)" data-bs-toggle="modal" data-bs-target="#alertNotification">
+                      <div class="mr-3">
+                        <div class="icon-circle" [ngClass]="notification.bgColor">
+                          <i class="{{ notification.iconClass }} text-white"></i>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="small text-gray-500">{{ notification.date }}</div>
+                        <span *ngIf="notification.message.length > 60" class="font-weight-bold" style="display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+                        {{ notification.message.slice(0, 60) }} ...
+                      </span>
+                      <span *ngIf="notification.message.length <= 60" class="font-weight-bold" style="display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+                        {{ notification.message }}
+                      </span>
+                      </div>
+                    </div>
+                </a>
+              <a class="dropdown-item text-center small text-gray-500" href="javascript:void(0)" routerLink="/alert-notification">Show All Alerts</a>
+          </div>
+      </li>
+
+      <div class="topbar-divider d-none d-sm-block"></div>
+      <!-- Nav Item - User Information -->
+      <li class="nav-item dropdown no-arrow">
+          <a class="nav-link" href="javascript:void(0)" id="userDropdown" role="button"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <div class="d-flex mt-2">
+                <div>
+                    <div class="profile-top" *ngIf="!imgeURL" > 
+                        {{userInfo?.firstName?.charAt(0).toUpperCase()}} 
+                    </div>
+                    <img [src]="imgeURL" *ngIf="imgeURL" class="profile-top" alt="User Image">                        
+                </div>
+            <div>
+                <div style="padding-top:5px">    
+                <span class="ml-2 d-none d-lg-inline text-gray-600 small text-truncate" style="max-width: 100px;">
+                    {{userInfo?.firstName}} {{userInfo?.lastName}}
+                </span>
+                <i class="fas fa-chevron-circle-down text-gray-500 ml-2"></i>
+                </div>
+                <div class="ml-2" style="font-size: 11px;color:#bdb9b9;"> {{userInfo?.designation}}</div>
+            </div>
+            </div>
+          </a>
+          <!-- Dropdown - User Information -->
+          <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+              aria-labelledby="userDropdown">
+              <h6 class="dropdown-header align-items-center" style="border-bottom: 1px solid rgb(207, 206, 206);">{{userInfo?.firstName}} {{userInfo?.lastName}}</h6>
+              <a class="dropdown-item" href="javascript:void(0)" routerLink="/profile">
+                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Profile
+              </a>
+              <!--a class="dropdown-item" href="javascript:void(0)" routerLink="/settings">
+                  <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Settings
+              </a -->
+              <a class="dropdown-item" href="javascript:void(0)" routerLink="/activity-log">
+                  <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Activity Log
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="javascript:void(0)" (click)="doSignout()" data-toggle="modal" data-target="#logoutModal">
+                  <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Logout
+              </a>
+          </div>
+      </li>
+  </ul>
+</nav>
+
+<div hidden> 
+    <button class="btn btn-primary"  data-toggle="modal" data-target="#sessionModel" #sessionModelOpen> </button>
+</div>
+
+  <div class="modal fade" id="sessionModel" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel">
+    <div class="modal-dialog" role="document">  
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Session Timeout Warning..</h5>
+          <button type="button" hidden class="close" data-dismiss="modal" aria-label="Close" #sessionModelClose >
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Your session will expire in  <span [ngClass]="{'blink': countdown < 10, 'red-text': countdown < 10}" > {{ countdown }}</span> seconds and logout automatically.</p>
+          <p>Click on <strong style="color:rgb(161, 7, 192)">stay logged in</strong> to continue the session<br>Otherwise click on <strong style="color:rgb(161, 7, 192)">logout</strong></p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary-custom"  (click)="stay()" >Stay logged in</button>
+            <button class="btn btn-danger" (click)="logout()" >Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!------To view  PopUp model------->
+<div class="modal fade" id="alertNotification" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">Alert & Notifications Details </h5>
+          <div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div *ngIf="selectedNotification">
+              <div class="d-flex w-100 p-2">
+                  <div class="mr-3">
+                    <div class="icon-circle" [ngClass]="selectedNotification.bgColor">
+                      <i class="{{ selectedNotification.iconClass }} text-white"></i>
+                  </div>
+                  </div>
+                  <div class="w-100">
+                      <div class="d-flex">
+                          <div class="text-gray-500">{{ selectedNotification.title }}</div>
+                          <div class="small ml-auto mr-2" style="font-style: italic;"> {{ selectedNotification.date }}</div>
+                      </div>
+                      <div class="small mr-2">{{ selectedNotification.message }}</div>
+                  </div>
+              </div>
+            </div>
+         </div>
+        </div>
+      </div>
+    </div>

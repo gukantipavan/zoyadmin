@@ -1,0 +1,269 @@
+<ngx-spinner bdColor="rgba(0,0,0,0.8)" size="medium" color="#fff" type="ball-circus" [fullScreen]="true">
+    <p style="color: white;">Loading ...</p>
+  </ngx-spinner>
+  <div id="page-top">
+      <!-- Page Wrapper -->
+      <div id="wrapper">    
+        <!-- Sidebar -->
+          <app-sidebar></app-sidebar>
+        <!-- End of Sidebar -->
+  
+          <!-- Content Wrapper -->
+          <div id="content-wrapper" class="d-flex flex-column" [ngClass]=" isExpandSideBar ?'side-bar-expand':'side-bar-collaspe'">
+              <!-- Main Content -->
+              <div id="content">
+                  <div style="display: block;margin-bottom: 5.375rem;">
+                  <!-- Topbar -->
+                  <app-header></app-header>
+                  <!-- End of Topbar -->
+                  </div>
+  
+                  <!-- Begin Page Content -->
+                  <div class="container-fluid">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-3">
+                      <h3 class="h3 mb-0"><span class="text-header-800 text-header-border">Tenant</span><span class="text-header-800-blue">Profile</span></h3> 
+                      <div>  
+                                            
+                      </div> 
+                      <div class="ml-auto">  
+                        <a class="btn btn-primary-custom" style="margin: -10px 0px;" href="javascript:history.back()" title="back to owner list"><i class="fas fa-chevron-circle-left mr-1"></i>Back</a>             
+                      </div> 
+                    </div>
+                      <!-- Content Row -->
+                      <div class="card shadow mb-3">
+                        <div class="card-body" style="display: block;margin: 0px;padding: 2px;height: calc(100vh - 155px)" >
+                            <div class="row m-2 pt-2">
+                              <div class="col-sm-3">
+                                <div class="mr-1"  style="border:1px solid rgb(226, 224, 224);border-radius: 10px;height: calc(100vh - 191px)">
+                                  <div style="text-align: end;padding-right: 20px;margin-top: 10px;">
+                                  <a class="dropdown no-arrow dropdown-toggle" href="javascript:void(0)" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                  <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                </a>
+                                  <div class="dropdown-menu dropdown-menu-left shadow animated--fade-in" aria-labelledby="dropdownMenuLink" *ngIf="tdpf.profile?.status != 'Active' ">
+                                      <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#reactivateReason" (click)="reason='';submitted=false" >Status</a>
+                                  </div>
+                                </div>
+                                  <div class="d-flex justify-content-center" style="margin-top: -25px;">
+                                    <div style="width: 55px;"></div>
+                                    <!-- <div style="height: 100px;width: 100px;border-radius: 50%;border:1px dashed rgb(36, 206, 248);padding: 2px;">
+                                      <div style="height: 94px;width: 94px;border-radius: 50%;background-color:  rgb(36, 206, 248)">
+                                        <div style="text-align: center;font-size: 38px;color:#ffffff;padding-top: 20px;">
+                                          <img [src]="tdpf.profile.userProfile" class="img-fluid" >
+                                        </div>
+                                      </div>
+                                    </div> -->
+                                    <div style="height: 100px;width: 100px;border-radius: 50%;padding: 3px;"
+                                    [ngStyle]="{'border': tdpf.profile.ekycStatus === 'Verified' ? '2px dashed rgb(9,135,56)' : '2px dashed rgb(239,128,38)'}">
+                                        <div class="tenant-profile-top"> 
+                                          <img [src]="tdpf.profile.userProfile" *ngIf="tdpf.profile.userProfile?.includes('/')" >
+                                           <span *ngIf="!tdpf.profile.userProfile?.includes('/') || !tdpf.profile.userProfile  " >{{tdpf.profile?.tenantName[0]?.toUpperCase()}}</span>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 70px;"><img [src]="tdpf.profile.ekycStatus == 'Verified'? 'assets/images/ekyc-verified.png':'assets/images/ekyc-pending.png'" class="image-responsive" style="height: 25px; width: 55px;margin-left: -12px;"></div>
+                                  </div>
+                                  
+                                  <div style="text-align: center;margin-top:30px;">{{tdpf.profile.tenantName}}</div>
+                                  <div class="pl-3" style="font-size: 14px;color:#707070;">
+                                    <div class="mb-1">Contact : {{tdpf.profile.contactNumber}}</div>
+                                    <div class="mb-1">Email Id : {{tdpf.profile.userEmail}}</div>
+                                    <div class="mb-1">Member Since : {{tdpf.profile.registeredDate | date: 'yyyy-MM-dd'}}</div>
+                                    <div class="mb-1">Check In : {{tdpf.activeBookings.pgName}} </div>
+                                    <div class="mb-1">Status : {{tdpf.profile.status}}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-sm-9">
+                                <div>
+                                  <nav class="nav nav-pills nav-justified" style="background-color:#F9F9FB;border-radius: 5px;border:1px solid #dedee0">
+                                    <a class="nav-link profile-tab" [ngClass]="selectedTab==1?'active':''" aria-current="page" (click)="selectProfile(1,'Persional Details')" style="border-radius: 0px;">Tenant Profile</a>
+                                    <a class="dropdown nav-link profile-tab" [ngClass]="selectedTab==2?'active':''"  id="dropdownMenuDownload" data-bs-toggle="dropdown" style="border-radius: 0px;border-left:1px solid #dedee0;border-right: 1px solid #dedee0;">Booking Details </a>
+                                    <div class="dropdown-menu shadow animated-fade-in" aria-labelledby="dropdownMenuDownload" style="min-width: 263px !important;text-align: center;">
+                                      <a class="dropdown-item" href="javascript:void(0)" (click)="selectProfile(2,'Active Booking Details')" >Active Bookings </a><hr style="margin-top: 0rem !important; margin-bottom: 0rem !important;">
+                                      <a class="dropdown-item" href="javascript:void(0)" (click)="selectProfile(2,'Closed Booking Details')" >Closed Bookings</a><hr style="margin-top: 0rem !important; margin-bottom: 0rem !important;">
+                                      <a class="dropdown-item" href="javascript:void(0)" (click)="selectProfile(2,'Upcoming Booking Details')" >Upcoming Bookings</a>   
+                                    </div>
+                                    <a class="nav-link profile-tab" [ngClass]="selectedTab==3?'active':''" id="dropdownMenuReport" data-bs-toggle="dropdown"  style="border-radius: 0px;">Transaction Details </a>
+                                    <div class="dropdown-menu shadow animated-fade-in" aria-labelledby="dropdownMenuReport" style="min-width: 263px !important;text-align: center;">
+                                      <a class="dropdown-item" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#paymentHistory" (click)="selectTransaction('Payment History')" >Payment History </a><hr style="margin-top: 0rem !important; margin-bottom: 0rem !important;">
+                                      <a class="dropdown-item" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#paymentHistory" (click)="selectTransaction('Due History')" >Due History</a><hr style="margin-top: 0rem !important; margin-bottom: 0rem !important;">
+                                      <a class="dropdown-item" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#paymentHistory" (click)="selectTransaction('Refund History')" >Refund History</a>   
+                                    </div>
+                                  </nav>
+                                </div>
+                                <div class="row mt-2">
+                                  <div class="col-sm-12">
+                                    <div style="border:1px solid rgb(226, 224, 224);border-radius: 10px;">
+                                      <div style="background-color: #D6CBEE;padding:5px 20px;border-top-left-radius:10px ;border-top-right-radius:10px;color: #4b2996;">{{sectionTabHeader}}</div>
+                                      <div style="height: calc(100vh - 275px);padding:5px 10px;">
+                                        <div *ngIf="selectedTab==1">
+                                          <div class="pl-3" style="font-size: 14px;color: #707070;">
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Emergency Number</div><div><span class="mr-2">:</span></div>{{tdpf.profile.emergencyContactNumber}}</div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Alternative Phone Number</div><div><span class="mr-2">:</span>{{tdpf.profile.alternatePhone}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Tenant Type</div><div><span class="mr-2">:</span>{{tdpf.profile.tenantType}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Gender</div><div><span class="mr-2">:</span>{{tdpf.profile.gender}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Date of Birth</div><div><span class="mr-2">:</span>{{tdpf.profile.dateOfBirth | date: 'yyyy-MM-dd'}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Blood Group</div><div><span class="mr-2">:</span>{{tdpf.profile.bloodGroup}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Father's Name</div><div><span class="mr-2">:</span>{{tdpf.profile.fatherName}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Present Address</div><div><span class="mr-2">:</span>{{tdpf.profile.currentAddress}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Permanent Address</div><div><span class="mr-2">:</span>{{tdpf.profile.permanentAddress}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Nationality</div><div><span class="mr-2">:</span>{{tdpf.profile.nationality}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 180px;">Mother Tongue</div><div><span class="mr-2">:</span>{{tdpf.profile.motherTongue}}</div></div>
+                                          </div>
+                                        </div>
+                                        <div *ngIf="selectedTab==2 && sectionTabHeader=='Active Booking Details'">
+                                          <div class="pl-3" style="font-size: 14px;color: #707070;" *ngIf="tdpf.activeBookings.pgName" >
+                                            <div class="d-flex mb-1"><div style="width: 130px;">PG Name</div><div><span class="mr-2">:</span>{{tdpf.activeBookings.pgName}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 130px;">Monthly Rent/Bed</div><div><span class="mr-2">:</span>{{tdpf.activeBookings.monthlyRent}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 130px;">Security Deposit</div><div><span class="mr-2">:</span>{{tdpf.activeBookings.securityDeposit}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 130px;">Dues</div><div><span class="mr-2">:</span>{{tdpf.activeBookings.totalDueAmount}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 130px;">Room / Bed No</div><div><span class="mr-2">:</span>{{tdpf.activeBookings.roomBedName}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 130px;">Check In</div><div><span class="mr-2">:</span>{{tdpf.activeBookings.checkInDate}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 130px;">Check Out</div><div><span class="mr-2">:</span>-</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 130px;">Rent Cycle</div><div><span class="mr-2">:</span>{{tdpf.activeBookings.rentCycle}}</div></div>
+                                            <div class="d-flex mb-1"><div style="width: 130px;">Notice Period</div><div><span class="mr-2">:</span>{{tdpf.activeBookings.noticePeriod}}</div></div>
+                                          </div>
+                                          <div style="text-align: center; padding-top:15px;" *ngIf="!tdpf.activeBookings.pgName">No data found. </div>
+                                        </div>
+                                        <div *ngIf="selectedTab==2 && sectionTabHeader=='Closed Booking Details'">
+                                          <div class="scrollable-container">
+                                          <div  *ngFor="let cbs of tdpf.closedBookings"> 
+                                              <div class="p-3" style="font-size: 14px;color: #525151;">
+                                                <div class="p-2" style="border:1px solid #603ebb;background-color: #faf9ff ;border-radius: 7px;">
+                                                <div class="d-flex mb-1"><div style="font-size: 20px;color: #4108ad;margin-right: 10px;">{{cbs.propertyName}} </div><div style="padding-top:5px"><i class="fas fa-circle mr-1" style="font-size: 8px;"></i> Bed No. {{cbs.bedNumber}}</div><div class="ml-auto" style="padding-top:5px"><span class="mr-2">Booking Id : {{cbs.bookingId}}</span></div></div>
+                                                <div class="d-flex mb-1"><div style="width: 130px;">Booking Date</div><div><span class="mr-2">:</span>{{cbs.bookingDate}}</div></div>
+                                                <div class="d-flex mb-1"><div style="width: 130px;">Cancellation Date</div><div><span class="mr-2">:</span>{{cbs.cancellationDate}}</div></div>
+                                                <div class="d-flex mb-1"><div style="width: 130px;">Monthly Rent</div><div><span class="mr-2">:</span>{{cbs.monthlyRent}}</div></div>
+                                                <div class="d-flex mb-1"><div style="width: 130px;">Security Deposit</div><div><span class="mr-2">:</span>{{cbs.securityDeposit}}</div></div>
+                                                <div class="d-flex mb-1"><div style="width: 130px;">Address</div><div><span class="mr-2">:</span>{{cbs.propertyAddress}}</div></div>
+                                                <div class="d-flex mb-1"><div style="width: 130px;">Contact</div><div><span class="mr-2">:</span>{{cbs.propertyContactNumber}}</div><div class="ml-auto"><a class="btn btn-sm btn-cancelled mr-2">{{cbs.bookingStatus}}</a></div></div>
+                                                </div>
+                                              </div>
+                                         </div>
+                                         <div style="text-align: center; padding-top:15px;" *ngIf="tdpf.closedBookings.length == 0 ">No data found. </div>
+                                        </div>
+                                        </div>
+                                        <div *ngIf="selectedTab==2 && sectionTabHeader=='Upcoming Booking Details'">
+                                          <div class="scrollable-container">
+                                            <div  *ngFor="let ubs of tdpf.upcomingBookings"> 
+                                            <div class="p-3" style="font-size: 14px;color: #525151;">
+                                              <div class="p-2" style="border:1px solid rgb(169, 3, 175);background-color: rgb(247, 247, 247);border-radius: 7px;">
+                                              <div class="d-flex mb-1"><div style="font-size: 20px;color: #4108ad;margin-right: 10px;">{{ubs.propertyName}} </div><div style="padding-top:5px"><i class="fas fa-circle mr-1" style="font-size: 8px;"></i> Bed No. {{ubs.bedNumber}}</div><div class="ml-auto" style="padding-top:5px"><span class="mr-2">Booking Id : {{ubs.bookingId}}</span></div></div>
+                                              <div class="d-flex mb-1"><div style="width: 130px;">Booking Date</div><div><span class="mr-2">:</span>{{ubs.bookingDate}}</div></div>
+                                              <div class="d-flex mb-1"><div style="width: 130px;">Monthly Rent</div><div><span class="mr-2">:</span>{{ubs.monthlyRent}}</div></div>
+                                              <div class="d-flex mb-1"><div style="width: 130px;">Security Deposit</div><div><span class="mr-2">:</span>{{ubs.securityDeposit}}</div><div class="ml-2" style="color: rgb(236, 136, 136);"><i class="fas fa-circle mr-1" style="font-size: 5px;"></i>{{ubs.securityDepositStatus}}</div></div>
+                                              <div class="d-flex mb-1"><div style="width: 130px;">Address</div><div><span class="mr-2">:</span>{{ubs.propertyAddress}}</div></div>
+                                              <div class="d-flex mb-1"><div style="width: 130px;">Contact</div><div><span class="mr-2">:</span>{{ubs.propertyContactNumber}}</div></div>
+                                              </div>
+                                            </div>
+                                            </div>
+                                          <div style="text-align: center; padding-top:15px;" *ngIf="tdpf.upcomingBookings.length == 0 ">No data found. </div>
+                                           </div>
+                                        </div>
+                                        <div *ngIf="selectedTab==3"></div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                       </div>  <!-- End Card Body -->  
+                      </div>
+                  <!-- /.container-fluid -->
+              </div>
+              <!-- End of Main Content -->
+          </div>
+          <!-- End of Content Wrapper -->
+     </div>
+    <!-- End of Page Wrapper -->
+  </div>
+
+  <!------To view Row details PopUp model------->
+<div class="modal fade" id="paymentHistory" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLabel">{{transactionHeader}} - [<span style="color: rgb(173, 5, 159);">{{tdpf.profile.tenantName}}</span>]</h5>
+        <div>
+          <div class="d-flex pl-5 ">
+            <div class="mr-1 mt-1">Date Range</div>
+            <input type="datetime-local" class="form-control form-control-sm" style="width: 160px;font-size: 12px; " id="fromDate" [(ngModel)]="fromDate" 
+            [ngClass]="{'is-invalid': (!fromDate ||(fromDate>toDate && toDate))}" 
+            [title]="!fromDate? 'From Date is required':((fromDate>toDate && toDate)?'Invalid date range':'') " /> 
+    
+            <!-- <input type="datetime-local" class="form-control" style="width: 130px;font-size: 12px; " id="fromDate"  />  -->
+            <div style="padding-top: 3px;"> - </div>
+            <input type="datetime-local" class="form-control form-control-sm" style="width: 160px; font-size: 12px;" id="toDate"  [(ngModel)]="toDate" 
+                                    [ngClass]="{'is-invalid': (!toDate ||(fromDate>toDate && fromDate ))}" 
+                                    [title]="!toDate? 'To Date is required':((fromDate>toDate && fromDate)?'Invalid date range':'') "/>
+                            
+            <!-- <input type="datetime-local" class="form-control" style="width: 130px; font-size: 12px;" id="toDate"  /> -->
+            <div class="ml-1"><button class="btn btn-sm btn-primary-custom" (click)="getReportSearchBy()" ><i class="fas fa-search fa-sm"></i></button></div>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+          <div class="scrollable-container-main">    
+            <table mat-table [dataSource]="reportDataSource" matSort (matSortChange)="onSortData($event)" 
+                    matSortActive="name" matSortDirection="asc" matSortDisableClear multiTemplateDataRows>
+              <ng-container *ngFor="let column of selectedReportColumns">
+                <ng-container [matColumnDef]="column">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header style="font-weight: 400;" [matTooltip]="columnHeaders[column] "> 
+                    {{ columnHeaders[column] || column }}
+                    <i class="fas fa-lg fa-sort ml-1" style="color:#d1cfcf;margin-right: 3px;"></i>
+                    <i class="fas fa-lg fa-sort-up" *ngIf="sortActive === column && sortDirection === 'asc'" 
+                       style="margin-right: 3px;margin-left: -14px;"></i>
+                    <i class="fas fa-lg  fa-sort-down" *ngIf="sortActive === column && sortDirection === 'desc'" 
+                       style="margin-right: 3px;margin-left: -14px;"></i></th>
+                  <td mat-cell *matCellDef="let element" >  {{  element[column] == undefined || element[column] == '' ? '-' : element[column] }} </td>
+                </ng-container>
+              </ng-container>
+            
+              <tr mat-header-row *matHeaderRowDef="selectedReportColumns; sticky:true"></tr>
+              <tr mat-row *matRowDef="let row; columns: selectedReportColumns;"></tr>
+            </table>
+            <div style="text-align: center; min-height: 45px; padding-top: 10px;" 
+            *ngIf="reportDataSource.data.length === 0">
+              No records found
+            </div>
+          </div> 
+             <mat-paginator #paginator [length]="totalProduct" [pageSize]="pageSize" 
+             [pageSizeOptions]="pageSizeOptions" showFirstLastButtons (page)="pageChanged($event)">
+            </mat-paginator>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!------To give the reason for Deactivate/Activate details PopUp model------->
+<div class="modal fade" id="reactivateReason" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-small ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLabel"><span style="color: rgb(173, 5, 159);"> {{tdpf.profile.tenantName}} - Status</span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <!-- <div class="form-group row">
+          <label for="category" class="col-sm-4 col-form-label">Status :</label>
+          <div class="col-sm-8">
+            <select class="form-select form-select-sm" id="status">
+              <option>Active</option>
+              <option>Inactive</option>
+              <option>Suspended</option>
+            </select>
+          </div>
+        </div> -->
+        <div>Reason :</div>
+        <textarea id="txtArea" rows="7" cols="52" [(ngModel)]="reason" maxlength="1000" title="Please give me the reason"
+               [ngClass]="{'is-invalid': submitted && !reason}"></textarea>
+        <div *ngIf="submitted && !reason" class="text-danger" >
+          Reason is required.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary-custom me-2" (click)="doInActiveSuspended()" >{{tdpf.profile?.status ==='Suspended'?'Inactive':'Suspended'}}</button>
+      </div>
+    </div>
+  </div>
+</div>

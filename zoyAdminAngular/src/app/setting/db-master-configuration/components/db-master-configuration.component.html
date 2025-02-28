@@ -1,0 +1,431 @@
+<ngx-spinner bdColor="rgba(0,0,0,0.8)" size="medium" color="#fff" type="ball-circus" [fullScreen]="true">
+  <p style="color: white;">Loading ...</p>
+</ngx-spinner>
+<div id="page-top">
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+    <!-- Sidebar -->
+    <app-sidebar></app-sidebar>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column"
+      [ngClass]=" isExpandSideBar ?'side-bar-expand':'side-bar-collaspe'">
+      <!-- Main Content -->
+      <div id="content">
+        <div style="display: block;margin-bottom: 5.375rem;">
+          <!-- Topbar -->
+          <app-header></app-header>
+          <!-- End of Topbar -->
+        </div>
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between mb-3">
+            <h3 class="h3 mb-0"><span class="text-header-800 text-header-border">Initial</span><span
+                class="text-header-800-blue">Configuration</span> <i class="fas fa-angle-double-right" style="color:#97cded;margin-left:10px;"></i> 
+                <span class="text-header-800 ml-2">{{settingType}}</span>
+              </h3>
+            <div class="ml-auto">
+              <div class="d-flex">
+                <div>
+                  <button class="btn btn-primary-custom  btn-sm  mr-2" (click)="createSetting()"  *ngIf="rolesArray.includes('DB_MASTER_CONFIGURATION_WRITE')" 
+                  data-bs-toggle="offcanvas" data-bs-target="#createUpdateDetails"> {{settingType == 'Short Term' && dbSettingDataList.length > 0 ?'Update':'Create' }}</button></div>
+                  <select class="form-select form-select-sm"  style="min-width: 150px;" [(ngModel)]="settingType" (ngModelChange)="changeSettingType()" > 
+                  <option *ngFor="let type of settingTypeObjClmApiDetailsList"  [value]="type.type" >{{type.type}}</option>
+              </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Row -->
+          <div class="card shadow mb-2">
+                  <div class="card-body" style="padding: 2px;margin: 0px;" >
+                    <div class="scrollable-container-main">    
+
+                      <div class="card-body" style="padding:2px;margin:0px;">
+                        <div style="max-height: calc(100vh - 155px); overflow: auto;">
+                            <div class="desc-inner" style="height:calc(100vh - 155px);">
+                      <table mat-table [dataSource]="dbSettingDataSource" multiTemplateDataRows>
+                        <ng-container *ngFor="let column of selectedsettingColumns ">
+                          <ng-container [matColumnDef]="column">
+                            <th mat-header-cell *matHeaderCellDef  style="font-weight: 600;"> 
+                              {{ columnHeaders[column] || ' ' }}
+                            <td mat-cell *matCellDef="let term" > 
+                              <span *ngIf="(columnHeaders[column]!='ameneties_image' && columnHeaders[column]!='AMENITIES PICTURE') && (columnHeaders[column]!='due_image' && columnHeaders[column]!='DUETYPE PICTURE')">
+                               {{ (term[column] == '' || term[column] == undefined) && term[column] != '0'? '-' : term[column] }} 
+                              </span>
+
+                               <span *ngIf="(columnHeaders[column]=='AMENITIES PICTURE' || columnHeaders[column]=='DUETYPE PICTURE') && term[column]">
+                                <img [src]="term[column]" style="width: 56px;height: 56px;"></span>
+                              </td>
+                          </ng-container>
+                        </ng-container>
+                        <ng-container matColumnDef="actions"  *ngIf="settingType != 'Short Term'" >
+                          <th mat-header-cell style="width: 50px;" *matHeaderCellDef ></th>
+                          <td mat-cell style="width: 50px;" *matCellDef="let term">
+                            <div *ngIf="rolesArray.includes('DB_MASTER_CONFIGURATION_WRITE')">
+                              <div *ngIf="(settingType == 'Due Type' && !term.due_status)">
+                                <div style="color:red;padding: 5px 0px;font-size: 14px;"><i class="fa fa-info-circle" title="This is internally configured, and we can't modify it."></i></div>
+                              </div>
+                              <div *ngIf="!(settingType == 'Due Type' && !term.due_status)">
+                                <span style="cursor: pointer;" data-bs-toggle="offcanvas" data-bs-target="#createUpdateDetails" *ngIf="rolesArray.includes('DB_MASTER_CONFIGURATION_WRITE') && !(settingType == 'Due Type' && !term.due_status)" >
+                                    <i class="bi bi-pencil-square" aria-hidden="true" data-toggle="tooltip" data-placement="left" title="View Details"  (click)="getElement(term)" ></i>
+                                </span>
+                              </div>
+                           </div>
+                          </td>
+                      </ng-container>  
+                      
+                        <tr mat-header-row *matHeaderRowDef="selectedsettingColumns; sticky: true"></tr>
+                        <tr mat-row *matRowDef="let row; columns: selectedsettingColumns;"></tr>
+                      </table>
+                      <div style="text-align: center; min-height: 45px; padding-top: 10px;" *ngIf="dbSettingDataSource.data.length === 0">
+                        No records found
+                      </div>
+                            </div>
+                        </div>
+                      </div>
+                       </div> 
+                  </div>
+        </div>
+        <!-- /.container-fluid -->
+      </div>
+      <!-- End of Main Content -->
+    </div>
+    <!-- End of Content Wrapper -->
+  </div>
+  <!-- End of Page Wrapper -->
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="createUpdateDetails" aria-labelledby="offcanvasRightLabel" data-bs-backdrop="static">
+  <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasRightLabel"> <span>{{settingType == 'Short Term' ? ' ':(isCreated?'Create ':'Update ')}}</span> {{settingType}} Details</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" #closeModel ></button>
+  </div>
+  <hr class="sidebar-divider my-0">
+  <div class="offcanvas-body">
+   <div style="font-size: 13px;">  
+
+  <div *ngIf="settingType == 'Share Type' ">
+    <div class="mb-3 row">
+      <div class="form-group">
+        <label for="share_type" >Share type :</label>
+        <input type="text" class="form-control" id="share_type" [(ngModel)]="dbSettingDataModel.share_type" 
+        [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.share_type == null || this.dbSettingDataModel.share_type == '' )}" >
+        <div *ngIf="submitted && (this.dbSettingDataModel.share_type == null || this.dbSettingDataModel.share_type == '' )" class="text-danger">
+          Share type is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="share_type" >Share occupancy count :</label>
+        <input type="text" class="form-control" id="share_occupancy_count" [(ngModel)]="dbSettingDataModel.share_occupancy_count" (keypress)="numberOnly($event)"  autocomplete="false" required
+        [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.share_occupancy_count == null || this.dbSettingDataModel.share_occupancy_count == '' )}" >
+        <div *ngIf="submitted && (this.dbSettingDataModel.share_occupancy_count == null || this.dbSettingDataModel.share_occupancy_count == '' )" class="text-danger">
+          Share occupancy count is required.
+        </div>
+      </div>
+
+  </div>
+  </div>
+
+  <div *ngIf="settingType == 'Room Type' ">
+  <div class="form-group">
+    <label for="contactNumber">Room Type Name :</label>
+    <input type="text" class="form-control" 
+    id="lastname"  placeholder="Room Type Name " required autocomplete="false" [(ngModel)]="this.dbSettingDataModel.room_type_name" autocomplete="off"
+    [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.room_type_name == null || this.dbSettingDataModel.room_type_name == '' )}" >
+    <div *ngIf="submitted && (this.dbSettingDataModel.room_type_name == null || this.dbSettingDataModel.room_type_name == '' )" class="text-danger">
+      Room type name is required.
+    </div>
+  </div>
+
+  </div>
+
+    <div *ngIf="settingType == 'Rent Cycle'">
+      <div class="form-group">
+        <div class="row mb-1">
+          <div class="col-sm-3 mt-2">
+             <label for="cycleName">Rent Cycle:</label>
+          </div>
+          <div class="col-sm-3">
+            <input type="text" class="form-control"
+            id="cycle_first"  required autocomplete="off"
+            [(ngModel)]="this.dbSettingDataModel.cycle_first" (keypress)="numberOnly($event)" maxlength="2"
+            [ngClass]="{'is-invalid': submitted && (this.dbSettingDataModel.cycle_first == null || this.dbSettingDataModel.cycle_first == '')}">
+          </div>
+          <div class="col-sm-1">
+            <h2>-</h2>
+          </div>
+          <div class="col-sm-3">
+            <input type="text" class="form-control"
+          id="cycle_second"  required autocomplete="off"
+          [(ngModel)]="this.dbSettingDataModel.cycle_second" (keypress)="numberOnly($event)" maxlength="2"
+          [ngClass]="{'is-invalid': submitted && (this.dbSettingDataModel.cycle_second == null ||this.dbSettingDataModel.cycle_second == '')}">
+    
+          </div>
+      </div>
+      <div *ngIf="submitted && (this.dbSettingDataModel.cycle_first == null || this.dbSettingDataModel.cycle_second == null )" class="text-danger">
+        Rent Cycle is required.
+      </div>
+
+        <div *ngIf="submitted && this.dbSettingDataModel.cycle_first != null && this.dbSettingDataModel.cycle_second != null && (this.dbSettingDataModel.cycle_first < '1' || this.dbSettingDataModel.cycle_first > '31' ||  this.dbSettingDataModel.cycle_second < '1' || this.dbSettingDataModel.cycle_second > '31')" class="text-danger">
+          Rent Cycle is invalid.
+        </div>
+       
+      </div>
+    </div>
+    
+
+  <div *ngIf="settingType == 'PG Type' ">
+
+      <div class="form-group">
+        <label for="contactNumber">PG Type :</label>
+        <input type="text" class="form-control" 
+        id="pg_type_name"  placeholder="PG Type " required autocomplete="false" [(ngModel)]="this.dbSettingDataModel.pg_type_name"
+        [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.pg_type_name == null || this.dbSettingDataModel.pg_type_name == '' )}" >
+        <div *ngIf="submitted && (this.dbSettingDataModel.pg_type_name == null || this.dbSettingDataModel.pg_type_name == '' )" class="text-danger">
+          PG Type is required.
+        </div>
+      </div>
+    
+     </div>
+
+     <div *ngIf="settingType == 'Notification Mode' ">
+
+      <div class="form-group">
+        <label for="contactNumber">Notification Mode :</label>
+        <input type="text" class="form-control" 
+        id="pg_type_name"  placeholder="Notification Mode " required autocomplete="false" [(ngModel)]="this.dbSettingDataModel.notification_mod_name" autocomplete="off"
+        [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.notification_mod_name == null || this.dbSettingDataModel.notification_mod_name == '' )}" >
+        <div *ngIf="submitted && (this.dbSettingDataModel.notification_mod_name == null || this.dbSettingDataModel.notification_mod_name == '' )" class="text-danger">
+          Notification Mode is required.
+        </div>
+      </div>
+    
+     </div>
+
+     <div *ngIf="settingType == 'Factor' ">
+
+      <div class="form-group">
+        <label for="factor_name">Factor Name:</label>
+        <input type="text" class="form-control" 
+        id="factor_name"  placeholder="Factor Name " required autocomplete="false" [(ngModel)]="this.dbSettingDataModel.factor_name" autocomplete="off"
+        [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.factor_name == null || this.dbSettingDataModel.factor_name == '' )}" >
+        <div *ngIf="submitted && (this.dbSettingDataModel.factor_name == null || this.dbSettingDataModel.factor_name == '' )" class="text-danger">
+          Factor Name is required.
+        </div>
+      </div>
+    
+     </div>
+
+     <div *ngIf="settingType == 'Due Type' ">
+      <div  class="image-preview mb-1" style="overflow: auto;text-align: center; width: 56px;height: 56px" *ngIf="dbSettingDataModel.due_type_id">
+        <img [src]="imgeURLDueType2">
+      </div>
+      <div class="form-group">
+        <label for="due_name">Due Type Name:</label>
+        <input type="text" class="form-control" 
+               id="due_name" placeholder="Due Type Name" required autocomplete="false" 
+               [(ngModel)]="this.dbSettingDataModel.due_name" autocomplete="off"
+               [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.due_name == null || this.dbSettingDataModel.due_name == '' )}" >
+        <div *ngIf="submitted && (this.dbSettingDataModel.due_name == null || this.dbSettingDataModel.due_name == '' )" class="text-danger">
+          Due Type Name is required.
+        </div>
+      </div>
+
+      <form [formGroup]="formPicture">
+        <div class="form-group">
+           <label for="uploadfile"> Upload Picture:</label> 
+           <input type="file" class="file-upload form-control" name="ImageInput"  id="ImageInput" formControlName="ImageInput"  accept="image/*"  (change)="onFileChanged($event,'duetype')" 
+              id="duetype_upload_id" placeholder="Due Type Image" required autocomplete="false" 
+               [(ngModel)]="this.dbSettingDataModel.due_type_upload" autocomplete="off"
+               [ngClass]="{'is-invalid':submitted && ((isCreated && (this.dbSettingDataModel.due_type_upload == null || this.dbSettingDataModel.due_type_upload == '')) || (!isCreated && imgeURLDueType2==null))}" />
+            <div *ngIf="submitted && ((isCreated && (this.dbSettingDataModel.due_type_upload == null || this.dbSettingDataModel.due_type_upload == '')) || (!isCreated && imgeURLDueType2==null))" class="text-danger">
+              Due type image is required.
+            </div>
+        </div>
+         <div *ngIf="fileUploadSizeStatus" style="color: red;">
+             Uploaded Size: {{ fileUploadSize }}KB , File should be maximum 50KB.
+        </div>
+        <div *ngIf="fileUploadRatioStatus" style="color: red;">
+          Picture size should not be greater than 75px width and  75px height
+        </div>
+        <div *ngIf="fileUploadTypeStatus" style="color: red;">
+          Please select a valid image file.
+        </div>
+        <!-- <div *ngIf="fileUploadProgress" style="color: green;">
+           Upload progress: {{ fileUploadProgress }}
+        </div> -->
+         <div class="image-preview mb-1" style="overflow: auto;text-align: center; width: 56px;height: 56px" *ngIf="previewUrlDueType">
+           <img [src]="previewUrlDueType" />                 
+         </div>
+        </form>
+         <div style="color:gray;padding: 5px 0px;font-size: 14px;"><i class="fa fa-info-circle"></i>
+        <span class="ml-2"> While upload the picture should not be more than 50KB. It's size should not be greater than 75 X 75.</span> 
+      </div>
+    
+    </div>
+
+    <div *ngIf="settingType == 'Currency Type' ">
+      <div class="form-group">
+        <label for="currency_name">Currency Name:</label>
+        <input type="text" class="form-control" 
+               id="currency_name" placeholder="Currency Name" required autocomplete="false" 
+               [(ngModel)]="this.dbSettingDataModel.currency_name" autocomplete="off"
+               [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.currency_name == null || this.dbSettingDataModel.currency_name == '' )}" >
+        <div *ngIf="submitted && (this.dbSettingDataModel.currency_name == null || this.dbSettingDataModel.currency_name == '' )" class="text-danger">
+          Currency Name is required.
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="settingType == 'Billing Type' ">
+      <div class="form-group">
+        <label for="billing_type_name">Billing Type Name:</label>
+        <input type="text" class="form-control" 
+               id="billing_type_name" placeholder="Billing Type Name" required autocomplete="false" 
+               [(ngModel)]="this.dbSettingDataModel.billing_type_name" autocomplete="off"
+               [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.billing_type_name == null || this.dbSettingDataModel.billing_type_name == '' )}" >
+        <div *ngIf="submitted && (this.dbSettingDataModel.billing_type_name == null || this.dbSettingDataModel.billing_type_name == '' )" class="text-danger">
+          Billing Type Name is required.
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="settingType == 'Amenities' ">
+      <div  class="image-preview mb-1" style="overflow: auto;text-align: center; width: 56px;height: 56px;" *ngIf="dbSettingDataModel.ameneties_id">
+        <img [src]="imgeURL2">
+      </div>
+      <div class="form-group">
+        <label for="ameneties_name">Amenities Name:</label>
+        <input type="text" class="form-control" 
+               id="ameneties_name" placeholder="Amenities Name" required autocomplete="false" 
+               [(ngModel)]="this.dbSettingDataModel.ameneties_name" autocomplete="off"
+               [ngClass]="{'is-invalid':submitted && (this.dbSettingDataModel.ameneties_name == null || this.dbSettingDataModel.ameneties_name == '' )}" >
+        <div *ngIf="submitted && (this.dbSettingDataModel.ameneties_name == null || this.dbSettingDataModel.ameneties_name == '' )" class="text-danger">
+          Amenities Name is required.
+        </div>
+      </div>
+      <form [formGroup]="formPicture">
+        <div class="form-group">
+           <label for="uploadfile"> Upload Picture:</label> 
+           <input type="file" class="file-upload form-control" name="ImageInput"  id="ImageInput" formControlName="ImageInput"  accept="image/*"  (change)="onFileChanged($event,'ameneties')" 
+              id="ameneties_upload_id" placeholder="Amenities Image" required autocomplete="false" 
+               [(ngModel)]="this.dbSettingDataModel.ameneties_upload" autocomplete="off"
+               [ngClass]="{'is-invalid':submitted && ((isCreated && (this.dbSettingDataModel.ameneties_upload == null || this.dbSettingDataModel.ameneties_upload == '')) || (!isCreated && imgeURL2==null))}" />
+            <div *ngIf="submitted && ((isCreated && (this.dbSettingDataModel.ameneties_upload == null || this.dbSettingDataModel.ameneties_upload == '')) || (!isCreated && imgeURL2==null))" class="text-danger">
+              Amenities image is required.
+            </div>
+        </div>
+         <div *ngIf="fileUploadSizeStatus" style="color: red;">
+             Uploaded Size: {{ fileUploadSize }}KB , File should be maximum 50KB.
+        </div>
+        <div *ngIf="fileUploadRatioStatus" style="color: red;">
+          Picture size should not be greater than 75px width and  75px height
+        </div>
+        <div *ngIf="fileUploadTypeStatus" style="color: red;">
+          Please select a valid image file.
+        </div>
+        <!-- <div *ngIf="fileUploadProgress" style="color: green;">
+           Upload progress: {{ fileUploadProgress }}
+        </div> -->
+         <div class="image-preview mb-1" style="overflow: auto;text-align: center; width: 56px;height: 56px" *ngIf="previewUrl">
+           <img [src]="previewUrl" />                 
+         </div>
+        </form>
+         <div style="color:gray;padding: 5px 0px;font-size: 14px;"><i class="fa fa-info-circle"></i>
+        <span class="ml-2"> While upload the picture should not be more than 50KB. It's size should not be greater than 75 X 75.</span> 
+      </div>
+    </div>
+    <div *ngIf="settingType == 'Short Term'">
+      <div class="form-group">
+        <div  >
+          <label for="shortTerm"  style="color: #78177e !important;font-size: 20px;">Short term duration period:</label>
+       </div>
+        <div class="row mb-1">
+          <div class="col-sm-1"></div>
+          <div class="col-sm-3">
+            <input type="text" class="form-control form-control-sm" id="start_day"  required autocomplete="off"
+            [(ngModel)]="shortTermData.start_day" (keypress)="numberOnly($event)" maxlength="2"
+            [ngClass]="{'is-invalid': addShortTermVali && (shortTermData.start_day == undefined || shortTermData.start_day == null || convertToNumber(shortTermData.start_day) < 1 || convertToNumber(shortTermData.start_day) > shortTermduration || convertToNumber(shortTermData.start_day) >= convertToNumber(shortTermData.end_day))}">
+          </div>
+          <div class="col-sm-1">
+            <h2>-</h2>
+          </div>
+          <div class="col-sm-3">
+            <input type="text" class="form-control form-control-sm" id="end_day"  required autocomplete="off"
+            [(ngModel)]="shortTermData.end_day" (keypress)="numberOnly($event)" maxlength="2"
+            [ngClass]="{'is-invalid': addShortTermVali && (shortTermData.end_day == undefined || shortTermData.end_day == null || convertToNumber(shortTermData.end_day) < 1 || convertToNumber(shortTermData.end_day) > shortTermduration  || convertToNumber(shortTermData.start_day) >= convertToNumber(shortTermData.end_day))}">
+          </div>
+          <div class="col-sm-1">
+            <button type="submit" class="btn btn-sm btn-primary" (click)="addShortTerm()" >Add</button>
+          </div>
+      </div>
+       <div *ngIf="submitted && shortTermData.end_day != null && shortTermData.start_day != null && (convertToNumber(shortTermData.start_day) < 1 || convertToNumber(shortTermData.start_day) > shortTermduration ||  convertToNumber(shortTermData.end_day) < 1 || convertToNumber(shortTermData.end_day) > shortTermduration)" class="text-danger">
+          Short term duration is invalid.
+        </div>
+      </div>
+      <div>
+        <hr class="solid">
+        <div *ngFor="let term of shortTermDataList; let i=index " >
+          <div class="form-group">
+            <div class="row">
+              <div class="col-sm-1"></div>
+              <div class="col-sm-3">
+                <input type="text" class="form-control form-control-sm" id="term_start_day"  required autocomplete="off"
+                [(ngModel)]="term.start_day" (keypress)="numberOnly($event)" [disabled]="term.isDelete || !term.isEdit" maxlength="2"
+                [ngClass]="{'is-invalid':(submitShortTerm && !term.isDelete && term.isEdit) ||( !term.isDelete && term.isEdit && (term.start_day == undefined || term.start_day == null || convertToNumber(term.start_day) < 1 || convertToNumber(term.start_day) > shortTermduration))}">
+              </div>
+              <div class="col-sm-1">
+                <h2>-</h2>
+              </div>
+              <div class="col-sm-3">
+                <input type="text" class="form-control form-control-sm" id="term_end_day"  required autocomplete="off"
+                [(ngModel)]="term.end_day" (keypress)="numberOnly($event)" [disabled]="term.isDelete || !term.isEdit" maxlength="2"
+                [ngClass]="{'is-invalid': (submitShortTerm && !term.isDelete && term.isEdit) ||(!term.isDelete && term.isEdit && (term.end_day == undefined || term.end_day == null || convertToNumber(term.end_day) < 1 || convertToNumber(term.end_day) > shortTermduration))}">
+              </div>
+              <div class="col-sm-1">
+                <div class="input-group">
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-secondary" *ngIf="!term.isDelete && !term.isEdit"
+                            (click)="term.isEdit = true;" title="Edit The Item">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <!-- <button class="btn btn-sm btn-outline-secondary" *ngIf="!term.isDelete && !term.isEdit"
+                            (click)="removeShortTerm(term)" title="Delete The Item">
+                      <i class="fas fa-trash" style="color: red;"></i>
+                    </button> -->
+                    <button class="btn btn-sm btn-outline-secondary" *ngIf="!term.isDelete && term.isEdit"
+                            (click)="modifyShortTerm(term)" title="Save Changes">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" *ngIf="!term.isDelete && term.isEdit"
+                            (click)="undoEditShortTermItem(i)" title="Undo Edit">
+                      <i class="fas fa-redo" style="color: red;"></i>
+                    </button>
+                  <!--   <button class="btn btn-sm btn-outline-secondary" *ngIf="term.isDelete"
+                            (click)="undoShortTermDelete(term)" title="Undo Delete">
+                      <i class="fas fa-redo" style="color: red;"></i>
+                    </button> -->
+                  </div>
+                </div>
+              </div>
+          </div>
+          </div>
+        </div>
+        <div class="text-danger">
+          Note: The Short term duration period must be within the defined ranges of 1-{{shortTermduration}} days and cannot overlap between slabs.
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3 mb-2" style="align-items: center;" >
+      <button type="submit" class="btn btn-primary-custom me-2" (click)="submitData()" >Submit</button>
+      <button class="btn btn-sm btn-outline-secondary ml-1" *ngIf="settingType == 'Short Term'" (click)="shortTermDataListReset()"  ><i class="fas fa-redo" style="color: red;"></i></button>
+    </div>
+  </div>
+  </div>
+</div>
