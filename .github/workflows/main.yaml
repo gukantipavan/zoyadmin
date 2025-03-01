@@ -3,10 +3,10 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Adjust the branch as needed
+      - main
   pull_request:
     branches:
-      - main  # Adjust the branch as needed
+      - main
 
 jobs:
   build_frontend:
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'  # Set the version to 18.x
+          node-version: '18'  # Ensure to use Node.js v18+
 
       - name: Install Angular CLI
         run: |
@@ -35,10 +35,11 @@ jobs:
           cd zoyAdminAngular
           ng build --configuration production --base-href /admin/
 
-      - name: List build directory contents with full path
-        run: |
-          echo "Listing build directory contents..."
-          ls -al /home/runner/work/zoyadmin/zoyadmin/zoyAdminAngular/dist/zoyadminportal
+      - name: Upload frontend build as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: frontend-build
+          path: zoyAdminAngular/dist/zoyadminportal/*
 
   deploy_frontend:
     runs-on: ubuntu-latest
@@ -48,6 +49,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Download frontend build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: frontend-build
+          path: ./frontend-build
+
       - name: Set up SSH keys
         uses: webfactory/ssh-agent@v0.5.3
         with:
@@ -56,4 +63,4 @@ jobs:
       - name: Copy Frontend to Server
         run: |
           echo "Copying frontend to server..."
-          scp -r /home/runner/work/zoyadmin/zoyadmin/zoyAdminAngular/dist/zoyadminportal/* ubuntu@45.129.86.68:/var/www/html/admin/
+          scp -r ./frontend-build/* ubuntu@45.129.86.68:/var/www/html/admin/
