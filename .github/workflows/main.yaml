@@ -84,7 +84,8 @@ jobs:
       - name: Copy frontend to server
         run: |
           echo "Copying frontend to server..."
-          scp -r zoyAdminAngular/dist/* ubuntu@45.129.86.68:/var/www/html/admin/
+          # Adjusting path to the correct folder in dist/
+          scp -r zoyAdminAngular/dist/zoyadminportal/* ubuntu@45.129.86.68:/var/www/html/admin/
 
       # Build and deploy Docker image for backend
       - name: Build and Deploy Docker Image
