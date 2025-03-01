@@ -39,9 +39,9 @@ jobs:
           cd zoyAdminAngular
           ng build --configuration production --base-href /admin/
 
-      # Step 6: Upload the build artifacts
+      # Step 6: Upload the build artifacts (using v4)
       - name: Upload frontend build as artifact
-        uses: actions/upload-artifact@v3  # Updated to v3 for consistency
+        uses: actions/upload-artifact@v4  # Using v4 as requested
         with:
           name: frontend-build
           path: zoyAdminAngular/dist/zoyadminportal/
