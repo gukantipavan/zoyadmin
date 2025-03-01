@@ -63,24 +63,24 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H 45.129.86.68 >> ~/.ssh/known_hosts
 
-      # Step 4: Create /zoyserver/ directory on the server
-      - name: Create /zoyserver/ directory on server
+      # Step 4: Create /home/ubuntu/zoyserver/ directory on the server
+      - name: Create /home/ubuntu/zoyserver/ directory on server
         run: |
-          ssh ubuntu@45.129.86.68 "mkdir -p /zoyserver"
+          ssh ubuntu@45.129.86.68 "mkdir -p /home/ubuntu/zoyserver"
 
-      # Step 5: Copy the JAR file and Dockerfile to the server
-      - name: Copy files to server
+      # Step 5: Copy the JAR file and Dockerfile to the server using rsync
+      - name: Copy files to server using rsync
         run: |
           echo "Copying files to server..."
-          scp -o StrictHostKeyChecking=no ./backend-artifacts/zoy-admin-server.jar ubuntu@45.129.86.68:/zoyserver/
-          scp -o StrictHostKeyChecking=no ./backend-artifacts/Dockerfile ubuntu@45.129.86.68:/zoyserver/
+          rsync -avz --progress -e "ssh" ./backend-artifacts/zoy-admin-server.jar ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
+          rsync -avz --progress -e "ssh" ./backend-artifacts/Dockerfile ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
 
       # Step 6: Build and Run Docker Container on Server
       - name: Build and Run Docker Container on Server
         run: |
           ssh ubuntu@45.129.86.68 << 'EOF'
           # Navigate to the directory containing the Dockerfile
-          cd /zoyserver
+          cd /home/ubuntu/zoyserver
 
           # Stop and remove any existing container (if running)
           docker stop zoy-admin-container || true
