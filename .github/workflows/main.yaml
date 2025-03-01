@@ -86,8 +86,8 @@ jobs:
       - name: Copy files to server using rsync
         run: |
           echo "Copying files to server..."
-          rsync -avz --progress -e "ssh" ./backend-artifacts/zoy-admin-server/target/zoy-admin-server.jar ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
-          rsync -avz --progress -e "ssh" ./backend-artifacts/zoy-admin-server/Dockerfile ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
+          rsync -avz --progress -e "ssh" ./backend-artifacts/target/zoy-admin-server.jar ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
+          rsync -avz --progress -e "ssh" ./backend-artifacts/Dockerfile ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
 
       # Step 8: Build and Run Docker Container on Server
       - name: Build and Run Docker Container on Server
