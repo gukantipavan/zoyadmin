@@ -35,6 +35,11 @@ jobs:
           cd zoyAdminAngular
           ng build --configuration production --base-href /admin/
 
+      - name: List build directory contents with full path
+        run: |
+          echo "Listing build directory contents..."
+          ls -al /home/runner/work/zoyadmin/zoyadmin/zoyAdminAngular/dist/zoyadminportal
+
   deploy_frontend:
     runs-on: ubuntu-latest
     needs: build_frontend
@@ -51,51 +56,4 @@ jobs:
       - name: Copy Frontend to Server
         run: |
           echo "Copying frontend to server..."
-          scp -r zoyAdminAngular/dist/zoyadminportal/* ubuntu@45.129.86.68:/var/www/html/admin/
-
-  build_backend:
-    runs-on: ubuntu-latest
-    needs: deploy_frontend  # Only starts after frontend deployment is successful
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Java
-        uses: actions/setup-java@v2
-        with:
-          java-version: '11'
-          distribution: 'temurin'  # Use 'temurin' instead of 'adoptopenjdk'
-          architecture: 'x64'
-          check-latest: false
-
-      - name: Build backend
-        run: |
-          cd zoyAdminServer
-          mvn clean install -DskipTests=true -Pqa  # Your specified backend build command
-
-  deploy_backend:
-    runs-on: ubuntu-latest
-    needs: build_backend  # Only starts after backend build is successful
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up SSH keys
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Copy Backend to Server
-        run: |
-          echo "Copying backend to server..."
-          scp zoyAdminServer/target/zoy-admin-server.jar ubuntu@45.129.86.68:/path/to/your/backend/
-
-      - name: Run Docker container on server
-        run: |
-          echo "Running Docker container on server..."
-          ssh ubuntu@45.129.86.68 << EOF
-            docker pull your_docker_image_name
-            docker run -d -p 8080:8080 your_docker_image_name
-          EOF
+          scp -r /home/runner/work/zoyadmin/zoyadmin/zoyAdminAngular/dist/zoyadminportal/* ubuntu@45.129.86.68:/var/www/html/admin/
