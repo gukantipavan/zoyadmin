@@ -1,5 +1,5 @@
 name: CI/CD Pipeline
-#work
+
 on:
   push:
     branches:
@@ -37,7 +37,7 @@ jobs:
       - name: Build frontend
         run: |
           cd zoyAdminAngular
-          ng build --configuration production --base-href /admin/
+          ng build --configuration production --base-href /
 
       # Step 6: Upload the build artifacts (using v4)
       - name: Upload frontend build as artifact
@@ -68,13 +68,13 @@ jobs:
       - name: Debug frontend-build contents
         run: ls -R ./frontend-build/
 
-      # Step 4: Copy the build files to the server
+      # Step 4: Copy the build files to the server using rsync
       - name: Copy Frontend to Server
         run: |
           echo "Copying frontend to server..."
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ./frontend-build/* ubuntu@45.129.86.68:/tmp/frontend/
-          ssh ubuntu@45.129.86.68 "sudo mkdir -p /var/www/html/admin && sudo mv /tmp/frontend/* /var/www/html/admin/"
+          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" ./frontend-build/ ubuntu@45.129.86.68:/tmp/frontend/
+          ssh ubuntu@45.129.86.68 "sudo rsync -av /tmp/frontend/ /var/www/html/"
 
       # Step 5: Debug server directory contents
       - name: Debug server directory contents
-        run: ssh ubuntu@45.129.86.68 "ls -l /var/www/html/admin/"
+        run: ssh ubuntu@45.129.86.68 "ls -l /var/www/html/"
