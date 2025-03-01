@@ -30,14 +30,19 @@ jobs:
           cd zoy-admin-server
           mvn clean install -DskipTests=true -Pqa
 
-      # Step 4: Upload the generated JAR file and Dockerfile as artifacts
+      # Step 4: Debug zoy-admin-server contents
+      - name: Debug zoy-admin-server contents
+        run: ls -R zoy-admin-server/
+
+      # Step 5: Upload JAR and Dockerfile as artifacts
       - name: Upload JAR and Dockerfile as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: backend-artifacts
           path: |
             zoy-admin-server/target/zoy-admin-server.jar
-            zoy-admin-server/Dockerfile  # Include the Dockerfile
+            zoy-admin-server/Dockerfile
+          if-no-files-found: error
 
   deploy_backend:
     runs-on: ubuntu-latest
@@ -67,19 +72,24 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H 45.129.86.68 >> ~/.ssh/known_hosts
 
-      # Step 5: Create /home/ubuntu/zoyserver/ directory on the server
+      # Step 5: Test SSH connectivity
+      - name: Test SSH connectivity
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@45.129.86.68 "echo 'SSH connection successful'"
+
+      # Step 6: Create /home/ubuntu/zoyserver/ directory on the server
       - name: Create /home/ubuntu/zoyserver/ directory on server
         run: |
           ssh ubuntu@45.129.86.68 "mkdir -p /home/ubuntu/zoyserver"
 
-      # Step 6: Copy files to server using rsync
+      # Step 7: Copy files to server using rsync
       - name: Copy files to server using rsync
         run: |
           echo "Copying files to server..."
           rsync -avz --progress -e "ssh" ./backend-artifacts/zoy-admin-server/target/zoy-admin-server.jar ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
           rsync -avz --progress -e "ssh" ./backend-artifacts/zoy-admin-server/Dockerfile ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
 
-      # Step 7: Build and Run Docker Container on Server
+      # Step 8: Build and Run Docker Container on Server
       - name: Build and Run Docker Container on Server
         run: |
           ssh ubuntu@45.129.86.68 << 'EOF'
