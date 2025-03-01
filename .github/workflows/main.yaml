@@ -60,10 +60,10 @@ jobs:
           npm install
           ng build --configuration production --base-href /admin/
 
-      # Ensure dist/ directory exists and list its contents
-      - name: Check if dist/ folder exists
+      # Check that dist folder has the expected files after build
+      - name: Check dist folder contents
         run: |
-          ls -al zoyAdminAngular/dist
+          ls -al zoyAdminAngular/dist/zoyadminportal
 
   deploy:
     needs: [build_backend, build_frontend]
@@ -80,11 +80,17 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      # Ensure the frontend build files are available
+      - name: Check if frontend build exists
+        run: |
+          echo "Checking if the frontend build directory exists:"
+          ls -al zoyAdminAngular/dist/zoyadminportal
+
       # Deploy frontend to server
       - name: Copy frontend to server
         run: |
           echo "Copying frontend to server..."
-          # Adjusting path to the correct folder in dist/
+          # If the build directory exists and has content, copy to server
           scp -r zoyAdminAngular/dist/zoyadminportal/* ubuntu@45.129.86.68:/var/www/html/admin/
 
       # Build and deploy Docker image for backend
