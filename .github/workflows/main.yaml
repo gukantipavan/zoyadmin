@@ -1,0 +1,103 @@
+name: Build and Deploy Backend and Frontend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Set up JDK for the backend
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+
+      # Cache Maven dependencies
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build Backend with Maven
+        run: |
+          cd zoy-admin-server
+          mvn clean install -DskipTests=true -Pqa
+
+  build_frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Set up Node.js for frontend
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Build Frontend
+        run: |
+          cd zoyAdminAngular
+          npm install
+          ng build --configuration production --base-href /admin/
+
+  deploy:
+    needs: [build_backend, build_frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code again in case changes occurred
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Set up SSH for deployment
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Deploy frontend to server
+      - name: Copy frontend to server
+        run: |
+          scp -r zoyAdminAngular/dist/* ubuntu@45.129.86.68:/var/www/html/admin/
+
+      # Build and deploy Docker image for backend
+      - name: Build and Deploy Docker Image
+        run: |
+          # Build the Docker image from the backend (make sure Dockerfile is in the repo root)
+          docker build -t zoy-admin-server ./zoy-admin-server
+
+          # Save the image to a tar file to transfer to the server
+          docker save zoy-admin-server | gzip > zoy-admin-server.tar.gz
+
+          # Copy the Docker image tar to the server
+          scp zoy-admin-server.tar.gz ubuntu@45.129.86.68:/home/ubuntu/
+
+          # Copy the backend JAR to the server
+          scp ./zoy-admin-server/target/zoy-admin-server.jar ubuntu@45.129.86.68:/home/ubuntu/
+
+      # Run Docker container on the server
+      - name: Run Docker container on server
+        run: |
+          ssh ubuntu@45.129.86.68 << 'EOF'
+            # Load the Docker image on the server
+            docker load < /home/ubuntu/zoy-admin-server.tar.gz
+
+            # Run the Docker container with LibreOffice and backend JAR
+            docker run -d --name zoy-admin-server -p 8082:8082 -p 2002:2002 zoy-admin-server
+
+            # Optionally, clean up the tar file and JAR
+            rm /home/ubuntu/zoy-admin-server.tar.gz
+            rm /home/ubuntu/zoy-admin-server.jar
+          EOF
