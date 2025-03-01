@@ -64,17 +64,23 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # Step 3: Debug frontend-build contents
+      # Step 3: Add server's SSH host key to known_hosts
+      - name: Add server SSH host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 45.129.86.68 >> ~/.ssh/known_hosts
+
+      # Step 4: Debug frontend-build contents
       - name: Debug frontend-build contents
         run: ls -R ./frontend-build/
 
-      # Step 4: Copy the build files to the server using rsync
+      # Step 5: Copy the build files to the server using rsync
       - name: Copy Frontend to Server
         run: |
           echo "Copying frontend to server..."
-          rsync -avz --progress -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" ./frontend-build/ ubuntu@45.129.86.68:/tmp/frontend/
+          rsync -avz --progress -e "ssh" ./frontend-build/ ubuntu@45.129.86.68:/tmp/frontend/
           ssh ubuntu@45.129.86.68 "sudo rsync -av /tmp/frontend/ /var/www/html/"
 
-      # Step 5: Debug server directory contents
+      # Step 6: Debug server directory contents
       - name: Debug server directory contents
         run: ssh ubuntu@45.129.86.68 "ls -l /var/www/html/"
