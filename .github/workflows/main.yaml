@@ -19,7 +19,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'  # Use the appropriate Node.js version for your project
+          node-version: '18'  # Set the version to 18.x
 
       - name: Install Angular CLI
         run: |
@@ -33,7 +33,7 @@ jobs:
       - name: Build frontend
         run: |
           cd zoyAdminAngular
-          ng build --configuration production --base-href /admin/  # Your specified build command
+          ng build --configuration production --base-href /admin/
 
   build_backend:
     runs-on: ubuntu-latest
@@ -45,7 +45,10 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v2
         with:
-          java-version: '11'  # Use the appropriate Java version for your project
+          java-version: '11'
+          distribution: 'adoptopenjdk'  # Fix here
+          architecture: 'x64'
+          check-latest: false
 
       - name: Build backend
         run: |
