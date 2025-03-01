@@ -24,7 +24,7 @@ ENV OFFICE_HOME=/usr/lib/libreoffice
 ENV JAVA_OPTS="-Doffice.home=${OFFICE_HOME} -Djava.awt.headless=true"
 
 # Copy the backend JAR into the container (this JAR will be transferred by GitHub Actions)
-COPY ./zoy-admin-server/target/zoy-admin-server.jar /app/zoy-admin-server.jar
+COPY ./zoy-admin-server.jar /app/zoy-admin-server.jar
 
 # Expose application and LibreOffice ports
 EXPOSE 8082 2002
