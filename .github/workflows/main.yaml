@@ -3,7 +3,7 @@ name: Build and Deploy Backend and Frontend
 on:
   push:
     branches:
-      - latest_main_qa
+      - main
 
 jobs:
   build_backend:
