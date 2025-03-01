@@ -1,4 +1,4 @@
-name: Backend CI/CD Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -9,6 +9,104 @@ on:
       - main
 
 jobs:
+  build_frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Step 3: Install Angular CLI globally
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      # Step 4: Install frontend dependencies
+      - name: Install frontend dependencies
+        run: |
+          cd zoyAdminAngular
+          npm install
+
+      # Step 5: Build the Angular frontend for production
+      - name: Build frontend
+        run: |
+          cd zoyAdminAngular
+          ng build --configuration production --base-href /
+
+      # Step 6: Upload the build artifacts (using v4)
+      - name: Upload frontend build as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: zoyAdminAngular/dist/zoyadminportal/
+
+  deploy_frontend:
+    runs-on: ubuntu-latest
+    needs: build_frontend
+
+    steps:
+      # Step 1: Download the build artifacts from the previous job
+      - name: Download frontend build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: ./frontend-build
+
+      # Step 2: Set up SSH keys for secure deployment
+      - name: Set up SSH keys
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Step 3: Add server's SSH host key to known_hosts
+      - name: Add server SSH host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 45.129.86.68 >> ~/.ssh/known_hosts
+
+      # Step 4: Debug frontend-build contents
+      - name: Debug frontend-build contents
+        run: ls -R ./frontend-build/
+
+      # Step 5: Backup existing files and copy new files to server
+      - name: Backup existing files and copy new files to server
+        run: |
+          echo "Backing up existing files and copying new files to server..."
+          ssh ubuntu@45.129.86.68 << 'EOF'
+          # Navigate to the deployment directory
+          cd /var/www/html
+
+          # Create the frontend_backup directory if it doesn't exist
+          mkdir -p /var/www/html/frontend_backup
+
+          # Check if any files or directories exist in /var/www/html (excluding the backup folder)
+          if [ -n "$(ls -A /var/www/html | grep -v '^frontend_backup$')" ]; then
+            # Find the next available backup folder number
+            backup_count=$(ls -d /var/www/html/frontend_backup/frontend_backup_* 2>/dev/null | wc -l)
+            next_backup="frontend_backup_$((backup_count + 1))"
+
+            # Create the new backup folder
+            mkdir -p "/var/www/html/frontend_backup/$next_backup"
+
+            # Move existing files to the backup folder (excluding the backup folder itself)
+            mv $(ls -A /var/www/html | grep -v '^frontend_backup$') "/var/www/html/frontend_backup/$next_backup/"
+          fi
+          EOF
+
+          # Copy the new files to the server using rsync
+          rsync -avz --progress -e "ssh" ./frontend-build/ ubuntu@45.129.86.68:/tmp/frontend/
+          ssh ubuntu@45.129.86.68 "sudo rsync -av /tmp/frontend/ /var/www/html/"
+
+      # Step 6: Debug server directory contents
+      - name: Debug server directory contents
+        run: ssh ubuntu@45.129.86.68 "ls -l /var/www/html/"
+
   build_backend:
     runs-on: ubuntu-latest
 
@@ -77,15 +175,46 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@45.129.86.68 "echo 'SSH connection successful'"
 
-      # Step 6: Create /home/ubuntu/zoyserver/ directory on the server
-      - name: Create /home/ubuntu/zoyserver/ directory on server
+      # Step 6: Stop and remove the running container
+      - name: Stop and remove running container
         run: |
-          ssh ubuntu@45.129.86.68 "mkdir -p /home/ubuntu/zoyserver"
+          ssh ubuntu@45.129.86.68 << 'EOF'
+          # Stop and remove any existing container (if running)
+          sudo docker stop zoy-admin-container || true
+          sudo docker rm zoy-admin-container || true
+          EOF
 
-      # Step 7: Copy files to server using rsync
-      - name: Copy files to server using rsync
+      # Step 7: Backup existing files and copy new files to server
+      - name: Backup existing files and copy new files to server
         run: |
-          echo "Copying files to server..."
+          echo "Backing up existing files and copying new files to server..."
+          ssh ubuntu@45.129.86.68 << 'EOF'
+          # Navigate to the deployment directory
+          cd /home/ubuntu/zoyserver
+
+          # Create the backup directory if it doesn't exist
+          mkdir -p /home/ubuntu/zoyserver/backup
+
+          # Check if existing Dockerfile or .jar file exists
+          if [ -f Dockerfile ] || [ -f zoy-admin-server.jar ]; then
+            # Find the next available backup folder number
+            backup_count=$(ls -d /home/ubuntu/zoyserver/backup/backup_* 2>/dev/null | wc -l)
+            next_backup="backup_$((backup_count + 1))"
+
+            # Create the new backup folder
+            mkdir -p "/home/ubuntu/zoyserver/backup/$next_backup"
+
+            # Move existing files to the backup folder
+            if [ -f Dockerfile ]; then
+              mv Dockerfile "/home/ubuntu/zoyserver/backup/$next_backup/"
+            fi
+            if [ -f zoy-admin-server.jar ]; then
+              mv zoy-admin-server.jar "/home/ubuntu/zoyserver/backup/$next_backup/"
+            fi
+          fi
+          EOF
+
+          # Copy the new files to the server using rsync
           rsync -avz --progress -e "ssh" ./backend-artifacts/target/zoy-admin-server.jar ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
           rsync -avz --progress -e "ssh" ./backend-artifacts/Dockerfile ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
 
@@ -95,10 +224,6 @@ jobs:
           ssh ubuntu@45.129.86.68 << 'EOF'
           # Navigate to the directory containing the Dockerfile
           cd /home/ubuntu/zoyserver
-
-          # Stop and remove any existing container (if running)
-          sudo docker stop zoy-admin-container || true
-          sudo docker rm zoy-admin-container || true
 
           # Build the Docker image using the Dockerfile
           sudo docker build -t zoy-admin-app .
