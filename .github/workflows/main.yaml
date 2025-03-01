@@ -36,7 +36,7 @@ jobs:
           ng build --configuration production --base-href /admin/
 
       - name: Upload frontend build as artifact
-        uses: actions/upload-artifact@v2  # Correct version (v2)
+        uses: actions/upload-artifact@v4  # Updated to v4
         with:
           name: frontend-build
           path: zoyAdminAngular/dist/zoyadminportal/*
@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download frontend build artifact
-        uses: actions/download-artifact@v2  # Correct version (v2)
+        uses: actions/download-artifact@v4  # Updated to v4
         with:
           name: frontend-build
           path: ./frontend-build
