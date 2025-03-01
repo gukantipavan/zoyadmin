@@ -30,26 +30,24 @@ jobs:
           cd zoy-admin-server
           mvn clean install -DskipTests=true -Pqa
 
-      # Step 4: Upload the generated JAR file and Dockerfile as artifacts
-      - name: Upload JAR and Dockerfile as artifacts
+      # Step 4: Upload the generated JAR file as an artifact
+      - name: Upload JAR file as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-artifacts
-          path: |
-            zoy-admin-server/target/zoy-admin-server.jar
-            zoy-admin-server/Dockerfile  # Ensure the Dockerfile is in the zoy-admin-server directory
+          name: backend-jar
+          path: zoy-admin-server/target/zoy-admin-server.jar  # Only upload the .jar file
 
   deploy_backend:
     runs-on: ubuntu-latest
     needs: build_backend
 
     steps:
-      # Step 1: Download the JAR file and Dockerfile from the previous job
-      - name: Download artifacts
+      # Step 1: Download the JAR file from the previous job
+      - name: Download JAR file artifact
         uses: actions/download-artifact@v4
         with:
-          name: backend-artifacts
-          path: ./backend-artifacts
+          name: backend-jar
+          path: ./backend-jar
 
       # Step 2: Set up SSH keys for secure deployment
       - name: Set up SSH keys
@@ -63,11 +61,11 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H 45.129.86.68 >> ~/.ssh/known_hosts
 
-      # Step 4: Copy the JAR file and Dockerfile to the server
-      - name: Copy files to server
+      # Step 4: Copy the JAR file to the server
+      - name: Copy JAR file to server
         run: |
-          echo "Copying files to server..."
-          scp -o StrictHostKeyChecking=no ./backend-artifacts/* ubuntu@45.129.86.68:/tmp/backend/
+          echo "Copying JAR file to server..."
+          scp -o StrictHostKeyChecking=no ./backend-jar/zoy-admin-server.jar ubuntu@45.129.86.68:/tmp/backend/zoy-admin-server.jar
 
       # Step 5: Build and Run Docker Container on Server
       - name: Build and Run Docker Container on Server
@@ -80,7 +78,7 @@ jobs:
           docker stop zoy-admin-container || true
           docker rm zoy-admin-container || true
 
-          # Build the Docker image using the Dockerfile
+          # Build the Docker image using the Dockerfile (assuming it's already on the server)
           docker build -t zoy-admin-app .
 
           # Run the new container
