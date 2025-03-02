@@ -82,20 +82,20 @@ jobs:
           # Navigate to the deployment directory
           cd /var/www/html
 
-          # Create the frontend_backup directory if it doesn't exist
-          mkdir -p /var/www/html/frontend_backup
+          # Create the backup directories if they don't exist
+          mkdir -p /home/ubuntu/backup/frontendbackup
 
-          # Check if any files or directories exist in /var/www/html (excluding the backup folder)
-          if [ -n "$(ls -A /var/www/html | grep -v '^frontend_backup$')" ]; then
+          # Check if any files or directories exist in /var/www/html
+          if [ -n "$(ls -A /var/www/html)" ]; then
             # Find the next available backup folder number
-            backup_count=$(ls -d /var/www/html/frontend_backup/frontend_backup_* 2>/dev/null | wc -l)
+            backup_count=$(ls -d /home/ubuntu/backup/frontendbackup/frontend_backup_* 2>/dev/null | wc -l)
             next_backup="frontend_backup_$((backup_count + 1))"
 
             # Create the new backup folder
-            mkdir -p "/var/www/html/frontend_backup/$next_backup"
+            mkdir -p "/home/ubuntu/backup/frontendbackup/$next_backup"
 
-            # Move existing files to the backup folder (excluding the backup folder itself)
-            mv $(ls -A /var/www/html | grep -v '^frontend_backup$') "/var/www/html/frontend_backup/$next_backup/"
+            # Move existing files to the backup folder
+            mv /var/www/html/* "/home/ubuntu/backup/frontendbackup/$next_backup/"
           fi
           EOF
 
@@ -132,14 +132,12 @@ jobs:
       - name: Debug zoy-admin-server contents
         run: ls -R zoy-admin-server/
 
-      # Step 5: Upload JAR and Dockerfile as artifacts
-      - name: Upload JAR and Dockerfile as artifacts
+      # Step 5: Upload JAR as artifact
+      - name: Upload JAR as artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend-artifacts
-          path: |
-            zoy-admin-server/target/zoy-admin-server.jar
-            zoy-admin-server/Dockerfile
+          path: zoy-admin-server/target/zoy-admin-server.jar
           if-no-files-found: error
 
   deploy_backend:
@@ -147,7 +145,7 @@ jobs:
     needs: build_backend
 
     steps:
-      # Step 1: Download the JAR file and Dockerfile from the previous job
+      # Step 1: Download the JAR file from the previous job
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -184,41 +182,36 @@ jobs:
           sudo docker rm zoy-admin-container || true
           EOF
 
-      # Step 7: Backup existing files and copy new files to server
-      - name: Backup existing files and copy new files to server
+      # Step 7: Backup existing .jar file
+      - name: Backup existing .jar file
         run: |
-          echo "Backing up existing files and copying new files to server..."
           ssh ubuntu@45.129.86.68 << 'EOF'
           # Navigate to the deployment directory
           cd /home/ubuntu/zoyserver
 
           # Create the backup directory if it doesn't exist
-          mkdir -p /home/ubuntu/zoyserver/backup
+          mkdir -p /home/ubuntu/backup/backendbackup
 
-          # Check if existing Dockerfile or .jar file exists
-          if [ -f Dockerfile ] || [ -f zoy-admin-server.jar ]; then
+          # Check if the .jar file exists
+          if [ -f zoy-admin-server.jar ]; then
             # Find the next available backup folder number
-            backup_count=$(ls -d /home/ubuntu/zoyserver/backup/backup_* 2>/dev/null | wc -l)
-            next_backup="backup_$((backup_count + 1))"
+            backup_count=$(ls -d /home/ubuntu/backup/backendbackup/backend_backup_* 2>/dev/null | wc -l)
+            next_backup="backend_backup_$((backup_count + 1))"
 
             # Create the new backup folder
-            mkdir -p "/home/ubuntu/zoyserver/backup/$next_backup"
+            mkdir -p "/home/ubuntu/backup/backendbackup/$next_backup"
 
-            # Move existing files to the backup folder
-            if [ -f Dockerfile ]; then
-              mv Dockerfile "/home/ubuntu/zoyserver/backup/$next_backup/"
-            fi
-            if [ -f zoy-admin-server.jar ]; then
-              mv zoy-admin-server.jar "/home/ubuntu/zoyserver/backup/$next_backup/"
-            fi
+            # Move the existing .jar file to the backup folder
+            mv zoy-admin-server.jar "/home/ubuntu/backup/backendbackup/$next_backup/"
           fi
           EOF
 
-          # Copy the new files to the server using rsync
-          rsync -avz --progress -e "ssh" ./backend-artifacts/target/zoy-admin-server.jar ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
-          rsync -avz --progress -e "ssh" ./backend-artifacts/Dockerfile ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
+      # Step 8: Copy the new .jar file to the server
+      - name: Copy the new .jar file to the server
+        run: |
+          rsync -avz --progress -e "ssh" ./backend-artifacts/zoy-admin-server.jar ubuntu@45.129.86.68:/home/ubuntu/zoyserver/
 
-      # Step 8: Build and Run Docker Container on Server
+      # Step 9: Build and Run Docker Container on Server
       - name: Build and Run Docker Container on Server
         run: |
           ssh ubuntu@45.129.86.68 << 'EOF'
