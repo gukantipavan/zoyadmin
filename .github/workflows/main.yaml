@@ -1,5 +1,5 @@
 name: CI/CD Pipeline
-#ok
+
 on:
   push:
     branches:
@@ -87,15 +87,14 @@ jobs:
 
           # Check if any files or directories exist in /var/www/html
           if [ -n "$(ls -A /var/www/html)" ]; then
-            # Find the next available backup folder number
-            backup_count=$(ls -d /home/ubuntu/backup/frontendbackup/frontend_backup_* 2>/dev/null | wc -l)
-            next_backup="frontend_backup_$((backup_count + 1))"
+            # Generate a folder name with the current date
+            backup_folder="frontend_backup_$(date +'%Y-%m-%d')"
 
             # Create the new backup folder
-            mkdir -p "/home/ubuntu/backup/frontendbackup/$next_backup"
+            mkdir -p "/home/ubuntu/backup/frontendbackup/$backup_folder"
 
             # Move existing files to the backup folder
-            mv /var/www/html/* "/home/ubuntu/backup/frontendbackup/$next_backup/"
+            mv /var/www/html/* "/home/ubuntu/backup/frontendbackup/$backup_folder/"
           fi
           EOF
 
@@ -194,15 +193,14 @@ jobs:
 
           # Check if the .jar file exists
           if [ -f zoy-admin-server.jar ]; then
-            # Find the next available backup folder number
-            backup_count=$(ls -d /home/ubuntu/backup/backendbackup/backend_backup_* 2>/dev/null | wc -l)
-            next_backup="backend_backup_$((backup_count + 1))"
+            # Generate a folder name with the current date
+            backup_folder="backend_backup_$(date +'%Y-%m-%d')"
 
             # Create the new backup folder
-            mkdir -p "/home/ubuntu/backup/backendbackup/$next_backup"
+            mkdir -p "/home/ubuntu/backup/backendbackup/$backup_folder"
 
             # Move the existing .jar file to the backup folder
-            mv zoy-admin-server.jar "/home/ubuntu/backup/backendbackup/$next_backup/"
+            mv zoy-admin-server.jar "/home/ubuntu/backup/backendbackup/$backup_folder/"
           fi
           EOF
 
