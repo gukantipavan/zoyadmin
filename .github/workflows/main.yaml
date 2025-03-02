@@ -95,6 +95,15 @@ jobs:
 
             # Move existing files to the backup folder
             mv /var/www/html/* "/home/ubuntu/backup/frontendbackup/$backup_folder/"
+
+            # Ensure only the latest 3 backups are retained
+            cd /home/ubuntu/backup/frontendbackup
+            backup_count=$(ls -d frontend_backup_* 2>/dev/null | wc -l)
+            if [ "$backup_count" -gt 3 ]; then
+              # Delete the oldest backup folder
+              oldest_backup=$(ls -d frontend_backup_* | sort | head -n 1)
+              rm -rf "$oldest_backup"
+            fi
           fi
           EOF
 
@@ -201,6 +210,15 @@ jobs:
 
             # Move the existing .jar file to the backup folder
             mv zoy-admin-server.jar "/home/ubuntu/backup/backendbackup/$backup_folder/"
+
+            # Ensure only the latest 3 backups are retained
+            cd /home/ubuntu/backup/backendbackup
+            backup_count=$(ls -d backend_backup_* 2>/dev/null | wc -l)
+            if [ "$backup_count" -gt 3 ]; then
+              # Delete the oldest backup folder
+              oldest_backup=$(ls -d backend_backup_* | sort | head -n 1)
+              rm -rf "$oldest_backup"
+            fi
           fi
           EOF
 
