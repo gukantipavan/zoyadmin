@@ -87,8 +87,15 @@ jobs:
 
           # Check if any files or directories exist in /var/www/html
           if [ -n "$(ls -A /var/www/html)" ]; then
-            # Generate a folder name with the current date
-            backup_folder="frontend_backup_$(date +'%Y-%m-%d')"
+            # Generate a base folder name with the current date
+            base_folder="frontend_backup_$(date +'%Y-%m-%d')"
+
+            # Find the next available folder name with a suffix
+            folder_suffix=1
+            while [ -d "/home/ubuntu/backup/frontendbackup/${base_folder}_${folder_suffix}" ]; do
+              folder_suffix=$((folder_suffix + 1))
+            done
+            backup_folder="${base_folder}_${folder_suffix}"
 
             # Create the new backup folder
             mkdir -p "/home/ubuntu/backup/frontendbackup/$backup_folder"
@@ -202,8 +209,15 @@ jobs:
 
           # Check if the .jar file exists
           if [ -f zoy-admin-server.jar ]; then
-            # Generate a folder name with the current date
-            backup_folder="backend_backup_$(date +'%Y-%m-%d')"
+            # Generate a base folder name with the current date
+            base_folder="backend_backup_$(date +'%Y-%m-%d')"
+
+            # Find the next available folder name with a suffix
+            folder_suffix=1
+            while [ -d "/home/ubuntu/backup/backendbackup/${base_folder}_${folder_suffix}" ]; do
+              folder_suffix=$((folder_suffix + 1))
+            done
+            backup_folder="${base_folder}_${folder_suffix}"
 
             # Create the new backup folder
             mkdir -p "/home/ubuntu/backup/backendbackup/$backup_folder"
